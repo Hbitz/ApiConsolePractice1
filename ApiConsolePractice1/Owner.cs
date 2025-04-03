@@ -11,5 +11,6 @@ namespace ApiConsolePractice1
     {
         [JsonPropertyName("login")]
         public string Login { get; set; }
+        //public string TotalRepositories { get; set; }
     }
 }
