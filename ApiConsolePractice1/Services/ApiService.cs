@@ -37,19 +37,11 @@ namespace ApiConsolePractice1.Services
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CSharpConsoleApp");
 
-                Console.WriteLine($"Token Loaded: {token.Substring(0, 5)}*****");
-                string testUrl = "https://api.github.com/user"; // If this fails, authentication is broken
-
 
                 // API request
                 string apiUrl = "https://api.github.com/repos/Hbitz/ApiConsolePractice1"; // Private repo 
                 var r = await _httpClient.GetAsync(apiUrl);
 
-                if (r.StatusCode == HttpStatusCode.NotFound)
-                {
-                    Console.WriteLine("Repository not found. Make sure you have access.");
-                    return;
-                }
                 if (!r.IsSuccessStatusCode)
                 {
                     AnsiConsole.MarkupLine($"[red]Error: {r.StatusCode} - {r.ReasonPhrase}[/]");
@@ -59,9 +51,6 @@ namespace ApiConsolePractice1.Services
                 // Read and deseralize response
                 var jsonR = await r.Content.ReadAsStringAsync();
                 var repo = JsonSerializer.Deserialize<GithubRepository>(jsonR, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); // .Serialize<T> Maps the JSNO fields to a c# class(post)
-
-                //string prettyJson = JsonSerializer.Serialize(JsonSerializer.Deserialize<JsonElement>(jsonR), new JsonSerializerOptions { WriteIndented = true });
-                //AnsiConsole.WriteLine(prettyJson);
 
                 // Display Data
                 AnsiConsole.MarkupLine($"[green]Name:[/] {repo.Name}");
@@ -75,27 +64,6 @@ namespace ApiConsolePractice1.Services
                 AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
 
             }
-            //try
-            //{
-            //    string r = await client.GetStringAsync(apiUrl);
-            //    var jsonDoc = JsonDocument.Parse(r);
-            //    var repo = JsonSerializer.Deserialize<GithubRepository>(r, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); // .Serialize<T> Maps the JSNO fields to a c# class(post)
-
-            //    var table = new Table()
-            //        .AddColumn("Property")
-            //        .AddColumn("Value")
-            //        .AddRow("Name", repo.Name)
-            //        .AddRow("Stars", repo.Stars.ToString())
-            //        .AddRow("Forks", repo.Forks.ToString())
-            //        .AddRow("Language", repo.Language ?? "N/A")
-            //        .AddRow("Owner", repo.Owner.Login);
-
-            //    AnsiConsole.Write(table);
-            //}
-            //catch (Exception ex)
-            //{
-            //    AnsiConsole.WriteLine(ex.Message);
-            //}
         }
 
         public static async Task GetJsonPlaceholderPost()
@@ -106,7 +74,6 @@ namespace ApiConsolePractice1.Services
             {
                 string r = await _httpClient.GetStringAsync(JsonPlaceholderApiUrl);
                 var post = JsonSerializer.Deserialize<Post>(r);
-
 
                 var panel = new Panel($"[bold]{post.Title}[/]\n\n{post.Body}")
                     .Header($"Post ID: {post.Id} | User ID: {post.UserId}")
