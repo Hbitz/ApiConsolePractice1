@@ -22,13 +22,16 @@ namespace ApiConsolePractice1.UI
                     new SelectionPrompt<string>()
                         .Title("Choose an API to call:")
                         .PageSize(5)
-                        .AddChoices(new[] { "GitHub Repository Info", "JSONPlaceholder Post", "Exit" })
+                        .AddChoices(new[] { "GitHub Repository Info", "Get GitHub User Repos", "JSONPlaceholder Post", "Exit" })
                 );
 
                 switch (choice)
                 {
                     case "GitHub Repository Info":
                         await ApiService.GetGithubRepoInfo();
+                        break;
+                    case "Get GitHub User Repos":
+                        await ApiService.GetUserRepositories();
                         break;
                     case "JSONPlaceholder Post":
                         await ApiService.GetJsonPlaceholderPost();

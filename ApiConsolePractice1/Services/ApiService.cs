@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ApiConsolePractice1.Services
 {
@@ -22,7 +23,7 @@ namespace ApiConsolePractice1.Services
             try
             {
                 var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
+                    //.SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appSettings.json")
                     .Build();
 
@@ -64,6 +65,64 @@ namespace ApiConsolePractice1.Services
                 AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
 
             }
+        }
+
+        public static async Task GetUserRepositories()
+        {
+            AnsiConsole.Markup("[yellow]Enter GitHub username:[/] ");
+            string username = Console.ReadLine()?.Trim();
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid username.[/]");
+                return;
+            }
+
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appSettings.json")
+                .Build();
+
+            var token = config["GithubToken"];
+            // Not needed for endpoint, but we include it anyway. Why?
+            // Rate limit of unauthenticated users are 60 request/hour. Authentication with token gets 5000/hour.
+            // Consistency and forward compatibility.
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("C# practice console app");
+
+            string apiUrl = $"https://api.github.com/users/{username}/repos";
+
+            var r = await _httpClient.GetAsync(apiUrl);
+
+            if (!r.IsSuccessStatusCode)
+            {
+                AnsiConsole.MarkupLine($"[red]Error: {r.StatusCode} - {r.ReasonPhrase}[/]");
+                return;
+            }
+
+            var json = await r.Content.ReadAsStringAsync();
+            var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+
+            if (repos == null || repos.Count == 0)
+            {
+                AnsiConsole.Markup("[yellow]No repositories found.[/]");
+                return;
+            }
+
+            var table = new Table();
+            table.Border(TableBorder.Rounded);
+            table.AddColumn("[green]Name[/]");
+            table.AddColumn("[blue]Stars[/]");
+            table.AddColumn("[cyan]Visibility[/]"); // Current endpoints only gets public, so this is unused.
+            table.AddColumn("[grey]Description[/]");
+
+            foreach (var repo in repos)
+            {
+                table.AddRow(repo.Name, repo.Stars.ToString(), repo.Visibility, repo.Description ?? "[italic]No description[/]");
+            }
+
+            AnsiConsole.Write(table);
+
+
         }
 
         public static async Task GetJsonPlaceholderPost()
