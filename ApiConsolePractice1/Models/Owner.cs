@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace ApiConsolePractice1
+namespace ApiConsolePractice1.Models
 {
     internal class Owner
     {
