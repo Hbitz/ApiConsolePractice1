@@ -67,29 +67,58 @@ namespace ApiConsolePractice1.Services
             }
         }
 
+        // Gets repositores of an user.
+        // If searched user is the same as current bearer token, also include private repos.
         public static async Task GetUserRepositories()
         {
+            // Get the username to search for
             AnsiConsole.Markup("[yellow]Enter GitHub username:[/] ");
-            string username = Console.ReadLine()?.Trim();
-            if (string.IsNullOrWhiteSpace(username))
+            string enteredUsername = Console.ReadLine()?.Trim();
+            if (string.IsNullOrWhiteSpace(enteredUsername))
             {
                 AnsiConsole.MarkupLine("[red]Invalid username.[/]");
                 return;
             }
 
+            // Get bearer token and setup client.
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json")
                 .Build();
 
             var token = config["GithubToken"];
-            // Not needed for endpoint, but we include it anyway. Why?
+            // Bearer not needed for normal endpoint, but we include it anyway. Why?
             // Rate limit of unauthenticated users are 60 request/hour. Authentication with token gets 5000/hour.
             // Consistency and forward compatibility.
+            // Also, it is required if the enteredUser is same as myUsername(of current bearer token)
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("C# practice console app");
 
-            string apiUrl = $"https://api.github.com/users/{username}/repos";
 
+            // Get username of current bearer token 
+            string authUserUrl = "Https://api.github.com/user";
+            var authResponse = await _httpClient.GetAsync(authUserUrl);
+            var authJson = await authResponse.Content.ReadAsStringAsync();
+
+            string myUsername = null;
+            if (authResponse.IsSuccessStatusCode)
+            {
+                using var doc = JsonDocument.Parse(authJson);
+                myUsername = doc.RootElement.GetProperty("login").GetString();
+            }
+            else
+            {
+                AnsiConsole.Markup("[red]Could not determine authenticated user.[/]");
+            }
+
+
+
+            // If entered user has the same username as our bearer token, get all repos of user(even private).
+            // Else, get the repositories of an user(only public)
+            string apiUrl = enteredUsername == myUsername
+                ? "https://api.github.com/user/repos"
+                : $"https://api.github.com/users/{enteredUsername}/repos";
+
+            // Make the api call
             var r = await _httpClient.GetAsync(apiUrl);
 
             if (!r.IsSuccessStatusCode)
@@ -98,6 +127,7 @@ namespace ApiConsolePractice1.Services
                 return;
             }
 
+            // If no errors, deserliaze and show all repos in a table.
             var json = await r.Content.ReadAsStringAsync();
             var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -112,7 +142,7 @@ namespace ApiConsolePractice1.Services
             table.Border(TableBorder.Rounded);
             table.AddColumn("[green]Name[/]");
             table.AddColumn("[blue]Stars[/]");
-            table.AddColumn("[cyan]Visibility[/]"); // Current endpoints only gets public, so this is unused.
+            table.AddColumn("[cyan]Visibility[/]");
             table.AddColumn("[grey]Description[/]");
 
             foreach (var repo in repos)
