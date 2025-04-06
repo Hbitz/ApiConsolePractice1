@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Net;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json.Serialization;
 
 namespace ApiConsolePractice1.Services
 {
@@ -18,6 +19,8 @@ namespace ApiConsolePractice1.Services
     {
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        // Currently a few if/else, depending on authorization.
+        // Could extract the if/else authorization and just give the api to this method
         public static async Task GetGithubRepoInfo()
         {
             try
@@ -152,6 +155,12 @@ namespace ApiConsolePractice1.Services
 
             AnsiConsole.Write(table);
 
+            AnsiConsole.Markup("[yellow]Enter repo name you want more info on[/]");
+            string repoToGetMoreInfoOn = Console.ReadLine();
+
+            await ApiService.GetRecentCommits(myUsername, repoToGetMoreInfoOn);
+
+
 
         }
 
@@ -175,6 +184,56 @@ namespace ApiConsolePractice1.Services
             {
                 AnsiConsole.WriteLine(ex.Message);
             }
+        }
+
+        public static async Task GetRecentCommits(string owner, string repoName, int count = 5)
+        {
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appSettings.json")
+                .Build();
+
+            var token = config["GithubToken"];
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("is this necessary question mark");
+
+            string apiUrl = $"https://api.github.com/repos/{owner}/{repoName}/commits";
+
+            var response = await _httpClient.GetAsync(apiUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                AnsiConsole.MarkupLine($"[red]Error fetching commits: {response.StatusCode} - {response.ReasonPhrase}[/]");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            //AnsiConsole.WriteLine(JsonSerializer.Deserialize<JsonElement>(json, new JsonSerializerOptions { WriteIndented = true }).ToString());
+
+            var commits = JsonSerializer.Deserialize<List<CommitInfo>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (commits == null || commits.Count == 0)
+            {
+                AnsiConsole.Markup("[yellow]No commits found.[/]");
+            }
+
+            //var jsonElement = JsonSerializer.Deserialize<JsonElement>(json, new JsonSerializerOptions { WriteIndented = true});
+            //AnsiConsole.WriteLine(JsonSerializer.Deserialize<JsonElement>(json, new JsonSerializerOptions { WriteIndented = true}).ToString());
+
+            var table = new Table();
+            table.Border(TableBorder.Rounded);
+            table.AddColumn("[green]Commit Message[/]");
+            table.AddColumn("[blue]Author[/]");
+            table.AddColumn("[grey]Date[/]");
+
+            foreach (var commit in commits)
+            {
+                var msg = commit.Commit.Message;
+                var author = commit.Commit.Author?.Name ?? "Unknown";
+                var date = commit.Commit.Author?.Date.ToString("g") ?? "Unkown";
+
+                table.AddRow(msg, author, date);
+            }
+
+            AnsiConsole.Write(table);
+
         }
     }
 }
