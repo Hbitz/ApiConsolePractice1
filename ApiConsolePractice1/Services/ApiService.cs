@@ -18,29 +18,27 @@ namespace ApiConsolePractice1.Services
     internal static class ApiService
     {
         private static readonly HttpClient _httpClient = new HttpClient();
+        private static readonly IConfiguration _config;
 
-        // Currently a few if/else, depending on authorization.
-        // Could extract the if/else authorization and just give the api to this method
+        static ApiService()
+        {
+            _config = new ConfigurationBuilder()
+                .AddJsonFile("appSettings.json")
+                .Build();
+
+            var token = _config["GithubToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            // Is this really needed?
+            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("c# console practice app");
+        }
+
         public static async Task GetGithubRepoInfo()
         {
             try
             {
-                var config = new ConfigurationBuilder()
-                    .AddJsonFile("appSettings.json")
-                    .Build();
-
-                var token = config["GithubToken"];
-                if (string.IsNullOrEmpty(token))
-                {
-                    AnsiConsole.MarkupLine("[red]GitHub token is missing! Set the GITHUB_TOKEN environment variable.[/]");
-                    return;
-                }
-
-                // New request headers for authentication
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CSharpConsoleApp");
-
-
                 // API request
                 string apiUrl = "https://api.github.com/repos/Hbitz/ApiConsolePractice1"; // Private repo 
                 var r = await _httpClient.GetAsync(apiUrl);
@@ -65,7 +63,6 @@ namespace ApiConsolePractice1.Services
             catch (Exception ex)
             { 
                 AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
-
             }
         }
 
@@ -74,48 +71,14 @@ namespace ApiConsolePractice1.Services
         public static async Task GetUserRepositories()
         {
             // Get the username to search for
-            AnsiConsole.Markup("[yellow]Enter GitHub username:[/] ");
-            string enteredUsername = Console.ReadLine()?.Trim();
-            if (string.IsNullOrWhiteSpace(enteredUsername))
-            {
-                AnsiConsole.MarkupLine("[red]Invalid username.[/]");
-                return;
-            }
+            string enteredUsername = PromptForUsername();
 
-            // Get bearer token and setup client.
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appSettings.json")
-                .Build();
+            // Gets username of our current bearer token
+            string myUsername = await GetAuthenticatedUsername();
 
-            var token = config["GithubToken"];
-            // Bearer not needed for normal endpoint, but we include it anyway. Why?
-            // Rate limit of unauthenticated users are 60 request/hour. Authentication with token gets 5000/hour.
-            // Consistency and forward compatibility.
-            // Also, it is required if the enteredUser is same as myUsername(of current bearer token)
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("C# practice console app");
-
-
-            // Get username of current bearer token 
-            string authUserUrl = "Https://api.github.com/user";
-            var authResponse = await _httpClient.GetAsync(authUserUrl);
-            var authJson = await authResponse.Content.ReadAsStringAsync();
-
-            string myUsername = null;
-            if (authResponse.IsSuccessStatusCode)
-            {
-                using var doc = JsonDocument.Parse(authJson);
-                myUsername = doc.RootElement.GetProperty("login").GetString();
-            }
-            else
-            {
-                AnsiConsole.Markup("[red]Could not determine authenticated user.[/]");
-            }
-
-
-
-            // If entered user has the same username as our bearer token, get all repos of user(even private).
-            // Else, get the repositories of an user(only public)
+            // Decide which endpoint depending on result.
+            // If both match it means we have authorization, so we get all the repositories.
+            // Else we just get the public ones
             string apiUrl = enteredUsername == myUsername
                 ? "https://api.github.com/user/repos"
                 : $"https://api.github.com/users/{enteredUsername}/repos";
@@ -132,7 +95,6 @@ namespace ApiConsolePractice1.Services
             // If no errors, deserliaze and show all repos in a table.
             var json = await r.Content.ReadAsStringAsync();
             var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
 
             if (repos == null || repos.Count == 0)
             {
@@ -158,7 +120,7 @@ namespace ApiConsolePractice1.Services
                 new SelectionPrompt<string>()
                     .Title("Would you like to see commits of a certain repository, or go back to menu?")
                     .PageSize(5)
-                    .AddChoices(new[] { "See commits", "Go back"})
+                    .AddChoices(new[] { "See commits", "Go back" })
             );
 
             switch (choice)
@@ -169,6 +131,38 @@ namespace ApiConsolePractice1.Services
                 case "Go back":
                     break;
             }
+        }
+
+        private static async Task<string> GetAuthenticatedUsername()
+        {
+            // Get username of current bearer token 
+            string authUserUrl = "Https://api.github.com/user";
+            var authResponse = await _httpClient.GetAsync(authUserUrl);
+            var authJson = await authResponse.Content.ReadAsStringAsync();
+
+            string myUsername = null;
+            if (authResponse.IsSuccessStatusCode)
+            {
+                using var doc = JsonDocument.Parse(authJson);
+                myUsername = doc.RootElement.GetProperty("login").GetString();
+            }
+            else
+            {
+                AnsiConsole.Markup("[red]Could not determine authenticated user.[/]");
+            }
+
+            return myUsername;
+        }
+
+        private static string PromptForUsername()
+        {
+            AnsiConsole.Markup("[yellow]Enter GitHub username: [/] ");
+            string enteredUsername = Console.ReadLine()?.Trim();
+            if (string.IsNullOrWhiteSpace(enteredUsername))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid username.[/]");
+            }
+            return enteredUsername;
         }
 
         public static async Task GetJsonPlaceholderPost()
@@ -195,15 +189,7 @@ namespace ApiConsolePractice1.Services
 
         public static async Task GetRecentCommits(string owner, int count = 5)
         {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("appSettings.json")
-                .Build();
-
-            var token = config["GithubToken"];
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("is this necessary question mark");
-
-            AnsiConsole.Markup("[yellow]Enter repo name you want more info on[/]");
+            AnsiConsole.Markup("[yellow]Enter repo name you want more info on: [/]");
             string repoName = Console.ReadLine();
 
             string apiUrl = $"https://api.github.com/repos/{owner}/{repoName}/commits";
@@ -215,17 +201,11 @@ namespace ApiConsolePractice1.Services
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            //AnsiConsole.WriteLine(JsonSerializer.Deserialize<JsonElement>(json, new JsonSerializerOptions { WriteIndented = true }).ToString());
-
             var commits = JsonSerializer.Deserialize<List<CommitInfo>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
             if (commits == null || commits.Count == 0)
             {
                 AnsiConsole.Markup("[yellow]No commits found.[/]");
             }
-
-            //var jsonElement = JsonSerializer.Deserialize<JsonElement>(json, new JsonSerializerOptions { WriteIndented = true});
-            //AnsiConsole.WriteLine(JsonSerializer.Deserialize<JsonElement>(json, new JsonSerializerOptions { WriteIndented = true}).ToString());
 
             var table = new Table();
             table.Border(TableBorder.Rounded);
