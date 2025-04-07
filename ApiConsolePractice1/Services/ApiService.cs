@@ -15,6 +15,9 @@ using System.Text.Json.Serialization;
 
 namespace ApiConsolePractice1.Services
 {
+    // This class is now obsolete/used.
+    // Was used before big refactor.
+    // Soon to be removed entirely.
     internal static class ApiService
     {
         private static readonly HttpClient _httpClient = new HttpClient();
