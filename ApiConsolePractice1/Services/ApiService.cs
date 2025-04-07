@@ -26,7 +26,6 @@ namespace ApiConsolePractice1.Services
             try
             {
                 var config = new ConfigurationBuilder()
-                    //.SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appSettings.json")
                     .Build();
 
@@ -155,13 +154,21 @@ namespace ApiConsolePractice1.Services
 
             AnsiConsole.Write(table);
 
-            AnsiConsole.Markup("[yellow]Enter repo name you want more info on[/]");
-            string repoToGetMoreInfoOn = Console.ReadLine();
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Would you like to see commits of a certain repository, or go back to menu?")
+                    .PageSize(5)
+                    .AddChoices(new[] { "See commits", "Go back"})
+            );
 
-            await ApiService.GetRecentCommits(myUsername, repoToGetMoreInfoOn);
-
-
-
+            switch (choice)
+            {
+                case "See commits":
+                    await ApiService.GetRecentCommits(myUsername);
+                    break;
+                case "Go back":
+                    break;
+            }
         }
 
         public static async Task GetJsonPlaceholderPost()
@@ -186,7 +193,7 @@ namespace ApiConsolePractice1.Services
             }
         }
 
-        public static async Task GetRecentCommits(string owner, string repoName, int count = 5)
+        public static async Task GetRecentCommits(string owner, int count = 5)
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appSettings.json")
@@ -195,6 +202,9 @@ namespace ApiConsolePractice1.Services
             var token = config["GithubToken"];
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("is this necessary question mark");
+
+            AnsiConsole.Markup("[yellow]Enter repo name you want more info on[/]");
+            string repoName = Console.ReadLine();
 
             string apiUrl = $"https://api.github.com/repos/{owner}/{repoName}/commits";
 
