@@ -99,18 +99,7 @@ namespace ApiConsolePractice1.Services
                 return;
             }
 
-            var table = new Table();
-            table.Border(TableBorder.Rounded);
-            table.AddColumn("[green]Name[/]");
-            table.AddColumn("[blue]Stars[/]");
-            table.AddColumn("[cyan]Visibility[/]");
-            table.AddColumn("[grey]Description[/]");
-
-            foreach (var repo in repos)
-            {
-                table.AddRow(repo.Name, repo.Stars.ToString(), repo.Visibility, repo.Description ?? "[italic]No description[/]");
-            }
-            AnsiConsole.Write(table);
+            PrintRepositoriesTable(repos);
 
             // Allow user to choose if they want more info about a certain repo, or go back to menu
             var choice = AnsiConsole.Prompt(
@@ -128,6 +117,22 @@ namespace ApiConsolePractice1.Services
                 case "Go back":
                     break;
             }
+        }
+
+        private static void PrintRepositoriesTable(List<GithubRepository>? repos)
+        {
+            var table = new Table();
+            table.Border(TableBorder.Rounded);
+            table.AddColumn("[green]Name[/]");
+            table.AddColumn("[blue]Stars[/]");
+            table.AddColumn("[cyan]Visibility[/]");
+            table.AddColumn("[grey]Description[/]");
+
+            foreach (var repo in repos)
+            {
+                table.AddRow(repo.Name, repo.Stars.ToString(), repo.Visibility, repo.Description ?? "[italic]No description[/]");
+            }
+            AnsiConsole.Write(table);
         }
 
         private static async Task<string> GetAuthenticatedUsername()
@@ -205,6 +210,11 @@ namespace ApiConsolePractice1.Services
                 AnsiConsole.Markup("[yellow]No commits found.[/]");
             }
 
+            PrintCommitsTable(commits);
+        }
+
+        private static void PrintCommitsTable(List<CommitInfo>? commits)
+        {
             var table = new Table();
             table.Border(TableBorder.Rounded);
             table.AddColumn("[green]Commit Message[/]");
