@@ -26,6 +26,8 @@ namespace ApiConsolePractice1.Services
                 .AddJsonFile("appSettings.json")
                 .Build();
 
+            // Some endpoints requires authorization via bearer token, some doesn't.
+            // But for consistency and for api call rate limit, we set our httpClient to always include our bearer.
             var token = _config["GithubToken"];
             if (!string.IsNullOrEmpty(token))
             {
@@ -150,13 +152,16 @@ namespace ApiConsolePractice1.Services
 
         private static string PromptForUsername()
         {
-            AnsiConsole.Markup("[yellow]Enter GitHub username: [/] ");
-            string enteredUsername = Console.ReadLine()?.Trim();
-            if (string.IsNullOrWhiteSpace(enteredUsername))
+            while (true)
             {
+                AnsiConsole.Markup("[yellow]Enter GitHub username: [/] ");
+                string enteredUsername = Console.ReadLine()?.Trim();
+                if (string.IsNullOrWhiteSpace(enteredUsername))
+                {
+                    return enteredUsername;
+                }
                 AnsiConsole.MarkupLine("[red]Invalid username.[/]");
             }
-            return enteredUsername;
         }
 
         public static async Task GetJsonPlaceholderPost()
