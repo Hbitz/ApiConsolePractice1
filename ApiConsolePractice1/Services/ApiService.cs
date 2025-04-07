@@ -31,15 +31,14 @@ namespace ApiConsolePractice1.Services
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
-            // Is this really needed?
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("c# console practice app");
         }
 
+        // Get info about a specific repo
         public static async Task GetGithubRepoInfo()
         {
             try
             {
-                // API request
                 string apiUrl = "https://api.github.com/repos/Hbitz/ApiConsolePractice1"; // Private repo 
                 var r = await _httpClient.GetAsync(apiUrl);
 
@@ -49,7 +48,6 @@ namespace ApiConsolePractice1.Services
                     return;
                 }
 
-                // Read and deseralize response
                 var jsonR = await r.Content.ReadAsStringAsync();
                 var repo = JsonSerializer.Deserialize<GithubRepository>(jsonR, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); // .Serialize<T> Maps the JSNO fields to a c# class(post)
 
@@ -67,7 +65,6 @@ namespace ApiConsolePractice1.Services
         }
 
         // Gets repositores of an user.
-        // If searched user is the same as current bearer token, also include private repos.
         public static async Task GetUserRepositories()
         {
             // Get the username to search for
@@ -83,7 +80,6 @@ namespace ApiConsolePractice1.Services
                 ? "https://api.github.com/user/repos"
                 : $"https://api.github.com/users/{enteredUsername}/repos";
 
-            // Make the api call
             var r = await _httpClient.GetAsync(apiUrl);
 
             if (!r.IsSuccessStatusCode)
@@ -92,7 +88,6 @@ namespace ApiConsolePractice1.Services
                 return;
             }
 
-            // If no errors, deserliaze and show all repos in a table.
             var json = await r.Content.ReadAsStringAsync();
             var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -113,9 +108,9 @@ namespace ApiConsolePractice1.Services
             {
                 table.AddRow(repo.Name, repo.Stars.ToString(), repo.Visibility, repo.Description ?? "[italic]No description[/]");
             }
-
             AnsiConsole.Write(table);
 
+            // Allow user to choose if they want more info about a certain repo, or go back to menu
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Would you like to see commits of a certain repository, or go back to menu?")
@@ -150,7 +145,6 @@ namespace ApiConsolePractice1.Services
             {
                 AnsiConsole.Markup("[red]Could not determine authenticated user.[/]");
             }
-
             return myUsername;
         }
 
@@ -191,7 +185,6 @@ namespace ApiConsolePractice1.Services
         {
             AnsiConsole.Markup("[yellow]Enter repo name you want more info on: [/]");
             string repoName = Console.ReadLine();
-
             string apiUrl = $"https://api.github.com/repos/{owner}/{repoName}/commits";
 
             var response = await _httpClient.GetAsync(apiUrl);
@@ -218,12 +211,9 @@ namespace ApiConsolePractice1.Services
                 var msg = commit.Commit.Message;
                 var author = commit.Commit.Author?.Name ?? "Unknown";
                 var date = commit.Commit.Author?.Date.ToString("g") ?? "Unkown";
-
                 table.AddRow(msg, author, date);
             }
-
             AnsiConsole.Write(table);
-
         }
     }
 }
