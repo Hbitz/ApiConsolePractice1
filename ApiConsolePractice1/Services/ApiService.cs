@@ -161,7 +161,7 @@ namespace ApiConsolePractice1.Services
             {
                 AnsiConsole.Markup("[yellow]Enter GitHub username: [/] ");
                 string enteredUsername = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(enteredUsername))
+                if (!string.IsNullOrWhiteSpace(enteredUsername))
                 {
                     return enteredUsername;
                 }
