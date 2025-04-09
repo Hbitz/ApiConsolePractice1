@@ -63,8 +63,17 @@ namespace ApiConsolePractice1.UI
         private async Task HandleGitHubUserRepos()
         {
             var username = PromptUser("Enter GitHub username:");
-            await _githubApiService.GetUserRepositories(username);
+            // old
+            //await _githubApiService.GetUserRepositories(username);
+            var result = await _githubApiService.GetUserRepositories(username);
 
+            if (!result.IsSuccess)
+            {
+                AnsiConsole.MarkupLine($"[red]{result.ErrorMessage}[/]");
+                return;
+            }
+
+            // Let user make new choice on what they want to do
             var actionChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("What would you like to do next?")

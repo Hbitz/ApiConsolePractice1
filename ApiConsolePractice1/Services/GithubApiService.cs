@@ -17,9 +17,10 @@ namespace ApiConsolePractice1.Services
         {
 
         }
+        // Instead of simply returning a Task, we return a task of <Result<
 
         // Get public repos of searched user
-        public async Task GetUserRepositories(string username)
+        public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username)
         {
             string apiUrl = GithubUrlBuilder.GetPublicUserRepositories(username);
             var response = await GetApiResponse(apiUrl);
@@ -28,11 +29,17 @@ namespace ApiConsolePractice1.Services
             {
                 var json = await response.Content.ReadAsStringAsync();
                 var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
+                if (repos == null || !repos.Any())
+                {
+                    AnsiConsole.MarkupLine($"[yellow]No repositories found for user '{username}'.[/]");
+                    return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response");
+                }
                 PrintRepositoriesTable(repos);
+                return Result<List<GithubRepository>>.Success(repos);
             }
             else
             {
-                AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
             }
         }
 
@@ -87,7 +94,7 @@ namespace ApiConsolePractice1.Services
                 table.AddRow(repo.Name, repo.Description ?? "No description");
             }
 
-            AnsiConsole.Render(table);
+            AnsiConsole.Write(table);
         }
 
         private static void PrintCommitsTable(List<CommitInfo>? commits)
