@@ -86,7 +86,7 @@ namespace ApiConsolePractice1.Services
             {
                 var json = await response.Content.ReadAsStringAsync();
                 var repoInfo = JsonSerializer.Deserialize<GithubRepository>(json);
-                PrintRepositoriesTable(new List<GithubRepository> { repoInfo });
+                PrintRepositoriesTable(new List<GithubRepository> { repoInfo }, true); // True to print extended/detailed info
             }
             else
             {
@@ -113,7 +113,8 @@ namespace ApiConsolePractice1.Services
         }
 
         // Display repositories in a table format
-        private void PrintRepositoriesTable(List<GithubRepository> repos)
+        // In some cases, print extensive info about repository.
+        private void PrintRepositoriesTable(List<GithubRepository> repos, bool extended = false)
         {
             var table = new Table();
             table.AddColumn("[green]Name[/]");
@@ -121,9 +122,32 @@ namespace ApiConsolePractice1.Services
             table.AddColumn("[cyan]Visibility[/]");
             table.AddColumn("[grey]Description[/]");
 
+            if (extended)
+            {
+                table.AddColumn("[magenta]Language[/]");
+                table.AddColumn("[yellow]Forks[/]");
+                table.AddColumn("[purple]Has Wiki[/]");
+                table.AddColumn("[white]Last Updated[/]");
+            }
+
             foreach (var repo in repos)
             {
-                table.AddRow(repo.Name, repo.Description ?? "No description");
+                var baseRow = new List<string>
+                {
+                    repo.Name,
+                    repo.Stars.ToString(),
+                    repo.Visibility,
+                    repo.Description,
+                };
+
+                if (extended)
+                {
+                    baseRow.Add(repo.Language ?? "N/A");
+                    baseRow.Add(repo.Forks.ToString());
+                    baseRow.Add(repo.HasWiki.ToString());
+                    baseRow.Add(repo.LastUpdate.ToString());
+                }
+                table.AddRow(baseRow.Select(cell => cell ?? "N/A").ToArray());
             }
 
             AnsiConsole.Write(table);

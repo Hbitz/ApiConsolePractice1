@@ -14,10 +14,18 @@ namespace ApiConsolePractice1.Models
 
         [JsonPropertyName("stargazers_count")]
         public int Stars { get; set; }
+
         [JsonPropertyName("description")]
         public string Description { get; set; }
+
         [JsonPropertyName("visibility")]
         public string Visibility { get; set; }
+
+        [JsonPropertyName("updated_at")]
+        public DateTime? LastUpdate { get; set; }
+
+        [JsonPropertyName("has_wiki")]
+        public bool HasWiki { get; set; }
 
         [JsonPropertyName("forks_count")]
         public int Forks { get; set; }
