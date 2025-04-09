@@ -17,7 +17,21 @@ namespace ApiConsolePractice1.Services
         {
 
         }
-        // Instead of simply returning a Task, we return a task of <Result<
+        // Instead of simply returning a Task, we return a task of <Result> to improve error handling
+
+        public async Task<Result<string>> GetAuthenticatedUsername()
+        {
+            string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
+            var response = await GetApiResponse(apiUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var userInfo = JsonSerializer.Deserialize<GithubUserInfo>(json);
+                return Result<string>.Success(userInfo.Login);
+            }
+            return Result<string>.Failure("Failed to retrieve authenticated user information.");
+        }
 
         // Get public repos of searched user
         public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username)
@@ -41,6 +55,24 @@ namespace ApiConsolePractice1.Services
             {
                 return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
             }
+        }
+
+        public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositories()
+        {
+            string apiUrl = GithubUrlBuilder.GetAuthenticatedUserRepositories();
+            var response = await GetApiResponse(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
+                if (repos == null || !repos.Any())
+                {
+                    return Result<List<GithubRepository>>.Failure("No repositories found.");
+                }
+                PrintRepositoriesTable(repos);
+                return Result<List<GithubRepository>>.Success(repos);
+            }
+            return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
         }
 
 

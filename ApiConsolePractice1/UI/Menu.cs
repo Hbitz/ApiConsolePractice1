@@ -62,10 +62,21 @@ namespace ApiConsolePractice1.UI
         // 
         private async Task HandleGitHubUserRepos()
         {
+            // Get username to search for
             var username = PromptUser("Enter GitHub username:");
-            // old
-            //await _githubApiService.GetUserRepositories(username);
-            var result = await _githubApiService.GetUserRepositories(username);
+
+            // Gets username of via bearer token
+            var authUserResult = await _githubApiService.GetAuthenticatedUsername();
+            if (!authUserResult.IsSuccess)
+            {
+                AnsiConsole.MarkupLine($"[red]{authUserResult.ErrorMessage}[/]");
+                return;
+            }
+            // Compare usernames to determine endpoint
+            var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
+            var result = isSelf
+                ? await _githubApiService.GetAuthenticatedUserRepositories() // Authenticated - get public and private repos
+                : await _githubApiService.GetUserRepositories(username); // Unathenticated - gets public repos
 
             if (!result.IsSuccess)
             {

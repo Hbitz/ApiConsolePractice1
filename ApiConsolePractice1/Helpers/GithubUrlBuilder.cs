@@ -29,12 +29,12 @@ namespace ApiConsolePractice1.Helpers
             return $"{BaseUrl}users/{username}/repos";
         }
 
-        // Get URls for repo of user // Confirm is this needs authorization?
+        // Get URls for repo of user 
         public static string GetRepoDetails(string owner, string repo)
         {
             return $"{BaseUrl}repos/{owner}/{repo}";
         }
-        // Get URL for repo commits //Confirm if this needs authorization?
+        // Get URL for repo commits 
         public static string GetRepoCommits(string owner, string repo)
         {
             return $"{BaseUrl}repos/{owner}/{repo}/commits";
