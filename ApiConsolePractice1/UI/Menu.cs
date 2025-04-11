@@ -59,7 +59,7 @@ namespace ApiConsolePractice1.UI
                 );
         }
 
-        // 
+        
         private async Task HandleGitHubUserRepos()
         {
             // Get username to search for
@@ -75,9 +75,6 @@ namespace ApiConsolePractice1.UI
             // Compare usernames to determine endpoint
             var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
             var result = await _githubApiService.GetUserRepositories(username, isSelf);
-            //var result = isSelf
-              //  ? await _githubApiService.GetUserRepositories() // Authenticated - get public and private repos
-                //: await _githubApiService.GetUserRepositories(username); // Unathenticated - gets public repos
 
             if (!result.IsSuccess)
             {
@@ -110,41 +107,5 @@ namespace ApiConsolePractice1.UI
                     return;
             }
         }
-
-        // Old code
-        //public static async Task ShowMenu()
-        //{
-        //    while (true)
-        //    {
-        //        AnsiConsole.Clear();
-        //        AnsiConsole.Write(new FigletText("API Caller").Color(Color.Blue)); // Fancy ASCII banner
-
-        //        var choice = AnsiConsole.Prompt(
-        //            new SelectionPrompt<string>()
-        //                .Title("Choose an API to call:")
-        //                .PageSize(5)
-        //                .AddChoices(new[] { "GitHub Repository Info", "Get GitHub User Repos", "JSONPlaceholder Post", "Exit" })
-        //        );
-
-        //        switch (choice)
-        //        {
-        //            case "GitHub Repository Info":
-        //                await ApiService.GetGithubRepoInfo();
-        //                break;
-        //            case "Get GitHub User Repos":
-        //                await ApiService.GetUserRepositories();
-        //                break;
-        //            case "JSONPlaceholder Post":
-        //                await ApiService.GetJsonPlaceholderPost();
-        //                break;
-        //            case "Exit":
-        //                AnsiConsole.MarkupLine("[green]Exiting program. Goodbye![/]");
-        //                return;
-        //        }
-
-        //        AnsiConsole.Markup("\n[cyan]Press any key to return to menu...[/]");
-        //        Console.ReadKey();
-        //    }
-        //}
     }
 }

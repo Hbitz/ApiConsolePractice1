@@ -33,30 +33,6 @@ namespace ApiConsolePractice1.Services
             return Result<string>.Failure("Failed to retrieve authenticated user information.");
         }
 
-        //// Get public repos of searched user
-        //public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username)
-        //{
-        //    string apiUrl = GithubUrlBuilder.GetPublicUserRepositories(username);
-        //    var response = await GetApiResponse(apiUrl);
-
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var json = await response.Content.ReadAsStringAsync();
-        //        var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
-        //        if (repos == null || !repos.Any())
-        //        {
-        //            AnsiConsole.MarkupLine($"[yellow]No repositories found for user '{username}'.[/]");
-        //            return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response");
-        //        }
-        //        PrintRepositoriesTable(repos);
-        //        return Result<List<GithubRepository>>.Success(repos);
-        //    }
-        //    else
-        //    {
-        //        return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
-        //    }
-        //}
-
         // Fetch repos based on url(for authenticated or normal user)
         private async Task<Result<List<GithubRepository>>> FetchAllRepositories(string apiUrl, int perPage = 100)
         {
@@ -101,26 +77,6 @@ namespace ApiConsolePractice1.Services
             PrintRepositoriesTable(result.Data);
             return result;
         }
-
-
-
-        //public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositories()
-        //{
-        //    string apiUrl = GithubUrlBuilder.GetAuthenticatedUserRepositories();
-        //    var response = await GetApiResponse(apiUrl);
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        var json = await response.Content.ReadAsStringAsync();
-        //        var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
-        //        if (repos == null || !repos.Any())
-        //        {
-        //            return Result<List<GithubRepository>>.Failure("No repositories found.");
-        //        }
-        //        PrintRepositoriesTable(repos);
-        //        return Result<List<GithubRepository>>.Success(repos);
-        //    }
-        //    return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
-        //}
 
         public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositories()
         {

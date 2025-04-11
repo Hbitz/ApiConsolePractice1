@@ -12,8 +12,6 @@ namespace ApiConsolePractice1
 {
     internal class Program
     {
-        // Personal Todo:
-        // Consider creating a Result<T> style wrapper class for better handling errors, bad results and overall logic from api respones
         static async Task Main(string[] args)
         {
             // Dependency injection
