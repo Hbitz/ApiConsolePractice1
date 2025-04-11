@@ -33,48 +33,99 @@ namespace ApiConsolePractice1.Services
             return Result<string>.Failure("Failed to retrieve authenticated user information.");
         }
 
-        // Get public repos of searched user
-        public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username)
-        {
-            string apiUrl = GithubUrlBuilder.GetPublicUserRepositories(username);
-            var response = await GetApiResponse(apiUrl);
+        //// Get public repos of searched user
+        //public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username)
+        //{
+        //    string apiUrl = GithubUrlBuilder.GetPublicUserRepositories(username);
+        //    var response = await GetApiResponse(apiUrl);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
-                if (repos == null || !repos.Any())
-                {
-                    AnsiConsole.MarkupLine($"[yellow]No repositories found for user '{username}'.[/]");
-                    return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response");
-                }
-                PrintRepositoriesTable(repos);
-                return Result<List<GithubRepository>>.Success(repos);
-            }
-            else
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        var json = await response.Content.ReadAsStringAsync();
+        //        var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
+        //        if (repos == null || !repos.Any())
+        //        {
+        //            AnsiConsole.MarkupLine($"[yellow]No repositories found for user '{username}'.[/]");
+        //            return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response");
+        //        }
+        //        PrintRepositoriesTable(repos);
+        //        return Result<List<GithubRepository>>.Success(repos);
+        //    }
+        //    else
+        //    {
+        //        return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+        //    }
+        //}
+
+        // Fetch repos based on url(for authenticated or normal user)
+        private async Task<Result<List<GithubRepository>>> FetchAllRepositories(string apiUrl, int perPage = 100)
+        {
+            var url = $"{apiUrl}?per_page={perPage}";
+            var response = await GetApiResponse(url);
+
+            if (!response.IsSuccessStatusCode)
             {
                 return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
             }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
+
+            if (repos == null || !repos.Any())
+            {
+                return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response.");
+            }
+
+            return Result<List<GithubRepository>>.Success(repos);
         }
+
+        // Fetch repositories based on username or authenticated user
+        public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username= "", bool isAuthenticatedUser = false)
+        {
+            string apiUrl = isAuthenticatedUser
+                ? GithubUrlBuilder.GetAuthenticatedUserRepositories()
+                : GithubUrlBuilder.GetPublicUserRepositories(username);
+
+            // Get all repos
+            var result = await FetchAllRepositories(apiUrl);
+
+            if (!result.IsSuccess)
+            {
+                if (!isAuthenticatedUser)
+                {
+                    AnsiConsole.MarkupLine($"[yellow]No repositories found for user \"{username}\".[/]");
+                }
+                return result;
+            }
+
+            PrintRepositoriesTable(result.Data);
+            return result;
+        }
+
+
+
+        //public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositories()
+        //{
+        //    string apiUrl = GithubUrlBuilder.GetAuthenticatedUserRepositories();
+        //    var response = await GetApiResponse(apiUrl);
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        var json = await response.Content.ReadAsStringAsync();
+        //        var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
+        //        if (repos == null || !repos.Any())
+        //        {
+        //            return Result<List<GithubRepository>>.Failure("No repositories found.");
+        //        }
+        //        PrintRepositoriesTable(repos);
+        //        return Result<List<GithubRepository>>.Success(repos);
+        //    }
+        //    return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+        //}
 
         public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositories()
         {
-            string apiUrl = GithubUrlBuilder.GetAuthenticatedUserRepositories();
-            var response = await GetApiResponse(apiUrl);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
-                if (repos == null || !repos.Any())
-                {
-                    return Result<List<GithubRepository>>.Failure("No repositories found.");
-                }
-                PrintRepositoriesTable(repos);
-                return Result<List<GithubRepository>>.Success(repos);
-            }
-            return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+            return await GetUserRepositories(isAuthenticatedUser: true);
         }
-
 
         // Get a specific repository's details by owner and repository name
         public async Task GetGithubRepoInfo(string owner, string repo)

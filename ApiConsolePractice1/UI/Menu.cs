@@ -74,9 +74,10 @@ namespace ApiConsolePractice1.UI
             }
             // Compare usernames to determine endpoint
             var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
-            var result = isSelf
-                ? await _githubApiService.GetAuthenticatedUserRepositories() // Authenticated - get public and private repos
-                : await _githubApiService.GetUserRepositories(username); // Unathenticated - gets public repos
+            var result = await _githubApiService.GetUserRepositories(username, isSelf);
+            //var result = isSelf
+              //  ? await _githubApiService.GetUserRepositories() // Authenticated - get public and private repos
+                //: await _githubApiService.GetUserRepositories(username); // Unathenticated - gets public repos
 
             if (!result.IsSuccess)
             {
