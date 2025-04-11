@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ApiConsolePractice1.Menus;
 using ApiConsolePractice1.Models;
 using ApiConsolePractice1.Services;
 using ApiConsolePractice1.UI;
@@ -21,15 +22,18 @@ namespace ApiConsolePractice1
                     .AddJsonFile("appSettings.json", optional: false)
                     .Build())
                 .AddSingleton<GithubApiService>() // Register service 
-                .AddSingleton<Menu>() // Register the menu
+                .AddSingleton<GithubApiService>()  // Register your services
+                .AddSingleton<GithubMenu>()       // Register the menus
+                .AddSingleton<GithubRepoMenu>()   // Register the repository menu
+                .AddSingleton<MainMenu>()         // Register the main menu
                 .BuildServiceProvider(); // Build the service provider
 
             // Resolve the menu service, which will automatically get all requires API services injected and use the service
-            var menu = serviceProvider.GetRequiredService<Menu>();
+            var mainMenu = serviceProvider.GetRequiredService<MainMenu>();
 
 
 
-            await menu.ShowMenu();
+            await mainMenu.ShowMenu();
         }
     }
 }

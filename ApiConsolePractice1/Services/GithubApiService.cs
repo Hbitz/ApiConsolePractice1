@@ -119,6 +119,12 @@ namespace ApiConsolePractice1.Services
             }
         }
 
+        // Public method 
+        public void DisplayRepositories(List<GithubRepository> repositories)
+        {   
+            PrintRepositoriesTable(repositories);
+        }
+
         // Display repositories in a table format
         // In some cases, print extensive info about repository.
         private void PrintRepositoriesTable(List<GithubRepository> repos, bool extended = false)
