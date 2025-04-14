@@ -1,4 +1,5 @@
-﻿using ApiConsolePractice1.Services;
+﻿using ApiConsolePractice1.Models;
+using ApiConsolePractice1.Services;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,6 @@ namespace ApiConsolePractice1.Menus
                 {
                     case "Get Github User Repos":
                         await HandleGitHubUserRepos();
-                        //await GithubRepoMenu.ShowMenu(isAuthenticated: true);
                         break;
                     case "Exit":
                         return;
@@ -61,15 +61,16 @@ namespace ApiConsolePractice1.Menus
             var username = PromptUser("Enter GitHub username:");
 
             // Gets username of via bearer token
-            var authUserResult = await _githubApiService.GetAuthenticatedUsername();
+            var authUserResult = await GetAuthenticatedUsername();
             if (!authUserResult.IsSuccess)
             {
                 AnsiConsole.MarkupLine($"[red]{authUserResult.ErrorMessage}[/]");
                 return;
             }
+
             // Compare usernames to determine endpoint
             var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
-            var result = await _githubApiService.GetUserRepositories(username, isSelf);
+            var result = await GetUserRepositories(username, isSelf);
 
             if (!result.IsSuccess)
             {
@@ -77,35 +78,19 @@ namespace ApiConsolePractice1.Menus
                 return;
             }
 
-
-
             // Display the next options
             await _githubRepoMenu.ShowMenu(username, result.Data);
-
-            //// Let user make new choice on what they want to do
-            //var actionChoice = AnsiConsole.Prompt(
-            //    new SelectionPrompt<string>()
-            //        .Title("What would you like to do next?")
-            //        .PageSize(5)
-            //        .AddChoices(new[] { "View Repository Details", "View Commits", "Back to Menu" })
-            //);
-
-            //switch (actionChoice)
-            //{
-            //    // Currently does not expand 
-            //    case "View Repository Details":
-            //        var repoName = PromptUser("Enter repository name:");
-            //        await _githubApiService.GetGithubRepoInfo(username, repoName);
-            //        break;
-
-            //    case "View Commits":
-            //        var commitRepoName = PromptUser("Enter repository name:");
-            //        await _githubApiService.GetRecentCommits(username, commitRepoName);
-            //        break;
-
-            //    case "Back to Menu":
-            //        return;
-            //}
         }
+
+        private async Task<Result<List<GithubRepository>>> GetUserRepositories(string username, bool isSelf)
+        {
+            return await _githubApiService.GetUserRepositories(username, isSelf);
+        }
+
+        private async Task<Result<string>> GetAuthenticatedUsername()
+        {
+            return await _githubApiService.GetAuthenticatedUsername();
+        }
+
     }
 }

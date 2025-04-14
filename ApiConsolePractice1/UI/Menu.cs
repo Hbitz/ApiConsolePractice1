@@ -8,6 +8,7 @@ using ApiConsolePractice1.Services;
 
 namespace ApiConsolePractice1.UI
 {
+    // TODO - Unused, soon to be deleted
     internal class Menu
     {
         private readonly GithubApiService _githubApiService;
