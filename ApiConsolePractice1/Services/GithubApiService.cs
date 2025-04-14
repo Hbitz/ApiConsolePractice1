@@ -119,8 +119,27 @@ namespace ApiConsolePractice1.Services
             }
         }
 
-        // Public method 
-        public void DisplayRepositories(List<GithubRepository> repositories)
+        // *** POST-requests ***
+        public async Task<Result<string>> StarRepositoryAsync(string owner, string repo)
+        {
+            string url = GithubUrlBuilder.StarRepository(owner, repo);
+            var response = await SendPutRequest(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Result<string>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+            }
+
+            return Result<string>.Success($"Repository \"{owner}/{repo}\" starred successfully!");
+        }
+
+
+
+
+            // *** Display and helper methods ***
+
+            // Public method 
+            public void DisplayRepositories(List<GithubRepository> repositories)
         {   
             PrintRepositoriesTable(repositories);
         }

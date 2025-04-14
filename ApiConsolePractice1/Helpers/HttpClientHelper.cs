@@ -39,7 +39,28 @@ namespace ApiConsolePractice1.Helpers
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
-                throw ex;
+                throw;
+            }
+        }
+
+        public static async Task<HttpResponseMessage> SendPostRequestAsync(HttpClient client, string apiUrl)
+        {
+            try
+            {
+                var content = new StringContent(""); // Github requires empty body for starring
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                var response = await client.PutAsync(apiUrl, content); // PUT to star repo
+                if (!response.IsSuccessStatusCode)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                throw;
             }
         }
     }

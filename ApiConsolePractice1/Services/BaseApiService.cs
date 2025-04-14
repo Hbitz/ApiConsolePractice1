@@ -20,5 +20,10 @@ namespace ApiConsolePractice1.Services
         {
             return await HttpClientHelper.SendRequestAsync(_httpClient, apiUrl);
         }
+
+        protected async Task<HttpResponseMessage> SendPutRequest(string apiUrl)
+        {
+            return await HttpClientHelper.SendPostRequestAsync(_httpClient, apiUrl);
+        }
     }
 }

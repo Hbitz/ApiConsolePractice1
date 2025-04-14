@@ -31,7 +31,7 @@ namespace ApiConsolePractice1.Menus
                     new SelectionPrompt<string>()
                         .Title("What would you like to do next?")
                         .PageSize(5)
-                        .AddChoices(new[] { "View Repository Details", "View Commits", "Back to Menu" })
+                        .AddChoices(new[] { "View Repository Details", "View Commits", "Star a Repository","Back to Menu" })
                 );
 
                 switch (actionChoice)
@@ -45,6 +45,19 @@ namespace ApiConsolePractice1.Menus
                     case "View Commits":
                         var commitRepoName = PromptUser("Enter repository name:");
                         await _githubApiService.GetRecentCommits(username, commitRepoName);
+                        break;
+
+                    case "Star a Repository":
+                        var starRepoName = PromptUser("Enter a repository to star");
+                        var result = await _githubApiService.StarRepositoryAsync(username, starRepoName);
+                        if (result.IsSuccess)
+                        {
+                            AnsiConsole.MarkupLine("[green]Repository starred successfully![/]");
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine($"[red]Error: {result.ErrorMessage}[/]");
+                        }
                         break;
 
                     case "Back to Menu":

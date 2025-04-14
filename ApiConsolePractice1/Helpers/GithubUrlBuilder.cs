@@ -10,6 +10,10 @@ namespace ApiConsolePractice1.Helpers
     {
         private const string BaseUrl = "https://api.github.com/";
 
+        /// <summary>
+        /// GET requests
+        /// </summary>
+        /// <returns></returns>
 
         //Get URl for authenticated user's username via bearer token
         public static string GetAuthenticatedUserInfo()
@@ -38,6 +42,18 @@ namespace ApiConsolePractice1.Helpers
         public static string GetRepoCommits(string owner, string repo)
         {
             return $"{BaseUrl}repos/{owner}/{repo}/commits";
+        }
+
+        /// 
+        // Authentication - Yes (Bearer token/PAT)
+        // Request Body - None
+        // Respones 
+            // 204 No content - Success
+            // 404 Not found - Repo doesn't exist or missing authentication
+            // 401 Unauthorized - Missin/invalid token
+        public static string StarRepository(string owner, string repo)
+        {
+            return $"{BaseUrl}user/starred/{owner}/{repo}";
         }
     }
 }
