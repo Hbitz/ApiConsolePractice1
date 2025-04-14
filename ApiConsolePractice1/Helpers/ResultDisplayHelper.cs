@@ -22,6 +22,13 @@ namespace ApiConsolePractice1.Helpers
             }
         }
 
+        /// <summary>
+        /// Displays the result of operation
+        /// If successful, 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="onSuccess"></param>
         public static void DisplayResult<T>(Result<T> result, Action<T> onSuccess)
         {
             if (result.IsSuccess)

@@ -1,4 +1,5 @@
-﻿using ApiConsolePractice1.Models;
+﻿using ApiConsolePractice1.Helpers;
+using ApiConsolePractice1.Models;
 using ApiConsolePractice1.Services;
 using Spectre.Console;
 using System;
@@ -36,28 +37,26 @@ namespace ApiConsolePractice1.Menus
 
                 switch (actionChoice)
                 {
-                    // Currently does not expand 
                     case "View Repository Details":
                         var repoName = PromptUser("Enter repository name:");
-                        await _githubApiService.GetGithubRepoInfo(username, repoName);
+                        var repoResult = await _githubApiService.GetGithubRepoInfo(username, repoName);
+                        // Use ResultDisplayHelper to handle result of api call
+                        // If successful, pass the data to a method that displays the information in an detailed and organized manner
+                        // If failed, show user the error message
+                        ResultDisplayHelper.DisplayResult(repoResult, GithubDisplayHelper.DisplaySingleRepositoryDetails);
                         break;
 
                     case "View Commits":
-                        var commitRepoName = PromptUser("Enter repository name:");
-                        await _githubApiService.GetRecentCommits(username, commitRepoName);
+                        var commitsRepoName = PromptUser("Enter repository name:");
+                        var commitsResult = await _githubApiService.GetRecentCommits(username, commitsRepoName);
+                        ResultDisplayHelper.DisplayResult(commitsResult, GithubDisplayHelper.DisplayCommitsList);
+
                         break;
 
                     case "Star a Repository":
                         var starRepoName = PromptUser("Enter a repository to star");
                         var result = await _githubApiService.StarRepositoryAsync(username, starRepoName);
-                        if (result.IsSuccess)
-                        {
-                            AnsiConsole.MarkupLine("[green]Repository starred successfully![/]");
-                        }
-                        else
-                        {
-                            AnsiConsole.MarkupLine($"[red]Error: {result.ErrorMessage}[/]");
-                        }
+                        ResultDisplayHelper.DisplayResult(result);
                         break;
 
                     case "Back to Menu":

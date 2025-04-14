@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ApiConsolePractice1.Helpers;
+using System.Linq.Expressions;
 
 namespace ApiConsolePractice1.Services
 {
@@ -84,62 +85,84 @@ namespace ApiConsolePractice1.Services
         }
 
         // Get a specific repository's details by owner and repository name
-        public async Task GetGithubRepoInfo(string owner, string repo)
+        public async Task<Result<GithubRepository>> GetGithubRepoInfo(string owner, string repo)
         {
-            string apiUrl = GithubUrlBuilder.GetRepoDetails(owner, repo);
-            var response = await GetApiResponse(apiUrl);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
+                string apiUrl = GithubUrlBuilder.GetRepoDetails(owner, repo);
+                var response = await GetApiResponse(apiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result<GithubRepository>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                }
+
                 var json = await response.Content.ReadAsStringAsync();
                 var repoInfo = JsonSerializer.Deserialize<GithubRepository>(json);
-                PrintRepositoriesTable(new List<GithubRepository> { repoInfo }, true); // True to print extended/detailed info
-            }
-            else
+                
+                if (repoInfo == null)
+                {
+                    return Result<GithubRepository>.Failure("Failed to deserialize repository details");
+                }
+
+                
+                //PrintRepositoriesTable(new List<GithubRepository> { repoInfo }, true); // True to print extended/detailed info
+                return Result<GithubRepository>.Success(repoInfo);
+                }
+            catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                return Result<GithubRepository>.Failure($"Exception: {ex.Message}");
             }
         }
 
         // Get commits of a repository
-        public async Task GetRecentCommits(string owner, string repo)
+        public async Task<Result<List<CommitInfo>>> GetRecentCommits(string owner, string repo)
         {
-            string apiUrl = GithubUrlBuilder.GetRepoCommits(owner, repo);
-            var response = await GetApiResponse(apiUrl);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
+                string apiUrl = GithubUrlBuilder.GetRepoCommits(owner, repo);
+                var response = await GetApiResponse(apiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result<List<CommitInfo>>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                }
                 var json = await response.Content.ReadAsStringAsync();
                 var commits = JsonSerializer.Deserialize<List<CommitInfo>>(json);
-                PrintCommitsTable(commits);
+                //PrintCommitsTable(commits);
+
+                if (commits == null || commits.Count == 0)
+                {
+                    return Result<List<CommitInfo>>.Failure("[yellow]No commits found.[/]");
+                }
+
+                return Result<List<CommitInfo>>.Success(commits);
             }
-            else
+            catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                return Result<List<CommitInfo>>.Failure($"Exception: {ex.Message}");
             }
         }
 
         // *** POST-requests ***
-        public async Task<Result<string>> StarRepositoryAsync(string owner, string repo)
+        public async Task<Result> StarRepositoryAsync(string owner, string repo)
         {
             string url = GithubUrlBuilder.StarRepository(owner, repo);
             var response = await SendPutRequest(url);
 
             if (!response.IsSuccessStatusCode)
             {
-                return Result<string>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                return Result.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
             }
 
-            return Result<string>.Success($"Repository \"{owner}/{repo}\" starred successfully!");
+            return Result.Success();
         }
 
 
+        // *** Display and helper methods ***
 
-
-            // *** Display and helper methods ***
-
-            // Public method 
-            public void DisplayRepositories(List<GithubRepository> repositories)
+        // Public method 
+        public void DisplayRepositories(List<GithubRepository> repositories)
         {   
             PrintRepositoriesTable(repositories);
         }
