@@ -1,4 +1,5 @@
-﻿using ApiConsolePractice1.Models;
+﻿using ApiConsolePractice1.Helpers;
+using ApiConsolePractice1.Models;
 using ApiConsolePractice1.Services;
 using Spectre.Console;
 using System;
@@ -33,6 +34,7 @@ namespace ApiConsolePractice1.Menus
                         .AddChoices(new[]
                         {
                         "Get Github User Repos",
+                        "View My Starred Repositories",
                         "Exit"
                         }));
 
@@ -40,6 +42,9 @@ namespace ApiConsolePractice1.Menus
                 {
                     case "Get Github User Repos":
                         await HandleGitHubUserRepos();
+                        break;
+                    case "View My Starred Repositories":
+                        await ViewStarredRepositoriesAsync();
                         break;
                     case "Exit":
                         return;
@@ -54,7 +59,13 @@ namespace ApiConsolePractice1.Menus
                 );
         }
 
-
+        private async Task ViewStarredRepositoriesAsync()
+        {
+            var result = await _githubApiService.GetStarredRepositoriesAsync();
+            ResultDisplayHelper.DisplayResult(result, GithubDisplayHelper.DisplayRepositoryList);
+            AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
+            Console.ReadKey();
+        }
         private async Task HandleGitHubUserRepos()
         {
             // Get username to search for

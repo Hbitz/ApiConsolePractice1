@@ -144,6 +144,34 @@ namespace ApiConsolePractice1.Services
             }
         }
 
+        public async Task<Result<List<GithubRepository>>> GetStarredRepositoriesAsync()
+        {
+            try
+            {
+                string apiUrl = "https://api.github.com/user/starred";
+                var response = await GetApiResponse(apiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var starredRepos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
+
+                if (starredRepos == null || starredRepos.Count == 0) // Todo "Any vs Count?"
+                {
+                    return Result<List<GithubRepository>>.Failure("No starred repositories.");
+                }
+
+                return Result<List<GithubRepository>>.Success(starredRepos);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<GithubRepository>>.Failure($"Exception: {ex.Message}");
+            }
+        }
+
         // *** POST-requests ***
         public async Task<Result> StarRepositoryAsync(string owner, string repo)
         {
