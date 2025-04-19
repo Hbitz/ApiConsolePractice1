@@ -172,6 +172,27 @@ namespace ApiConsolePractice1.Services
             }
         }
 
+        public async Task<Result> UnstarRepositoryAsync(string owner, string repo)
+        {
+            try
+            {
+                string url = GithubUrlBuilder.UnstarRepository(owner, repo);
+                var request = new HttpRequestMessage(HttpMethod.Delete, url);
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result.Failure($"Failed to unstar repository: {response.StatusCode} - {response.ReasonPhrase}");
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Exception: {ex.Message}");
+            }
+        }
+
+
         // *** POST-requests ***
         public async Task<Result> StarRepositoryAsync(string owner, string repo)
         {
