@@ -20,6 +20,8 @@ namespace ApiConsolePractice1.Services
         }
         // Instead of simply returning a Task, we return a task of <Result> to improve error handling
 
+        // *** GET-requests ***
+
         public async Task<Result<string>> GetAuthenticatedUsername()
         {
             string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
@@ -171,14 +173,13 @@ namespace ApiConsolePractice1.Services
                 return Result<List<GithubRepository>>.Failure($"Exception: {ex.Message}");
             }
         }
-
+        // *** DELETE-requetss ***
         public async Task<Result> UnstarRepositoryAsync(string owner, string repo)
         {
             try
             {
                 string url = GithubUrlBuilder.UnstarRepository(owner, repo);
-                var request = new HttpRequestMessage(HttpMethod.Delete, url);
-                var response = await _httpClient.SendAsync(request);
+                var response = await SendDeleteRequest(url);
 
                 if (!response.IsSuccessStatusCode)
                 {

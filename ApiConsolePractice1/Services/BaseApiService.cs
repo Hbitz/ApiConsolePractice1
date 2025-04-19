@@ -25,5 +25,10 @@ namespace ApiConsolePractice1.Services
         {
             return await HttpClientHelper.SendPostRequestAsync(_httpClient, apiUrl);
         }
+
+        protected async Task<HttpResponseMessage> SendDeleteRequest(string apiUrl)
+        {
+            return await HttpClientHelper.SendDeleteRequestAsync(_httpClient, apiUrl);
+        }
     }
 }

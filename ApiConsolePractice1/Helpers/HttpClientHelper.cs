@@ -63,5 +63,29 @@ namespace ApiConsolePractice1.Helpers
                 throw;
             }
         }
+
+        public static async Task<HttpResponseMessage> SendDeleteRequestAsync(HttpClient client, string apiUrl)
+        {
+            try
+            {
+                // There is a built-in DeleteAsync which could work, since the Github API technically doesn't require a body for DELETE.
+                // But by using SendAsync we get full control of our request, and in this case we set the method to delete.
+                // But if we ever need to add a body, DeleteAsync won't let us while this solution works.
+                // In short, it gives us more flexibility in case we need it later
+                var request = new HttpRequestMessage(HttpMethod.Delete, apiUrl);
+                var response = await client.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                throw;
+            }
+        }
     }
 }
