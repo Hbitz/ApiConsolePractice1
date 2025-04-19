@@ -148,7 +148,7 @@ namespace ApiConsolePractice1.Services
         {
             try
             {
-                string apiUrl = "https://api.github.com/user/starred";
+                string apiUrl = GithubUrlBuilder.GetStarredRepositories();
                 var response = await GetApiResponse(apiUrl);
 
                 if (!response.IsSuccessStatusCode)

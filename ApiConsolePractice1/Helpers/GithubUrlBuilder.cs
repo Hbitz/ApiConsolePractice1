@@ -44,6 +44,16 @@ namespace ApiConsolePractice1.Helpers
             return $"{BaseUrl}repos/{owner}/{repo}/commits";
         }
 
+        public static string GetStarredRepositories()
+        {
+            return $"{BaseUrl}user/starred";
+        }
+
+        public static string UnstarRepository(string owner, string repo)
+        {
+            return $"{BaseUrl}user/starred/{owner}/{repo}"; 
+        }
+
         /// 
         // Authentication - Yes (Bearer token/PAT)
         // Request Body - None
