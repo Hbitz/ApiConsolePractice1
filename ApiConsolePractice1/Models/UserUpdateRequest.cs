@@ -9,7 +9,14 @@ namespace ApiConsolePractice1.Models
 {
     internal class UserUpdateRequest
     {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+        [JsonPropertyName("email")]
+        public string? Email { get; set; }
+        [JsonPropertyName("blog")]
+        public string? Blog { get; set; }
         [JsonPropertyName("bio")]
         public string? Bio {  get; set; }
+
     }
 }

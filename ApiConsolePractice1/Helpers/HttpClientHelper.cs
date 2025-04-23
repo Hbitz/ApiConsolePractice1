@@ -89,7 +89,7 @@ namespace ApiConsolePractice1.Helpers
             }
         }
         
-        public static async Task<HttpResponseMessage> SendPatchRequestAsync(HttpClient client, string apiUrl, object payload)
+        public static async Task<HttpResponseMessage> SendPatchRequestAsync(HttpClient client, string apiUrl, Dictionary<string, string> payload)
         {
             try
             {

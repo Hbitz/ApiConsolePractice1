@@ -4,6 +4,7 @@ using ApiConsolePractice1.Services;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace ApiConsolePractice1.Menus
                         await ViewStarredRepositoriesAsync();
                         break;
                     case "Update User Profile Bio":
-                        await UpdateBioAsync();
+                        await UpdateUserProfileAsync();
                         break;
                     case "Exit":
                         return;
@@ -145,16 +146,60 @@ namespace ApiConsolePractice1.Menus
             return await _githubApiService.GetAuthenticatedUsername();
         }
 
-        private async Task UpdateBioAsync()
+        private async Task UpdateUserProfileAsync()
         {
-            var newBio = PromptUser("Enter your new bio:");
+            var updateRequest = PromptForUserProfileUpdate();
 
-            var result = await _githubApiService.UpdateUserBio(newBio);
+            // Ensure we are updating at least one value
+            if (!updateRequest.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]No fields selected or no values provided. Nothing to update.[/]");
+                AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
+                Console.ReadKey();
+                return;
+            }
+
+            var result = await _githubApiService.UpdateUserProfile(updateRequest);
             ResultDisplayHelper.DisplayResult(result);
 
             AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
             Console.ReadKey();
         }
 
+        // TODO - Lacks validation and error handling.
+        // name - Optional, max 255 char.
+        // email - Must be verified github email.
+        // blog - Must be valid URL.
+        // bio - Max 160 characters.
+
+        // github email settings must not be set to private
+
+        private Dictionary<string, string> PromptForUserProfileUpdate()
+        {
+            var updates = new Dictionary<string, string>();
+
+            var fieldsToUpdate = AnsiConsole.Prompt(
+                new MultiSelectionPrompt<string>()
+                .Title("[green]Which fields would you like to update?[/]")
+                .NotRequired()
+                .InstructionsText("[grey]Use [blue]<space>[/] to seelect, [green]<enter>[/] to accept[/]")
+                .AddChoices("name", "email", "blog", "bio"));
+
+            if (!fieldsToUpdate.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]No fields selected. Nothing to update.[/]");
+                return updates; 
+            }
+
+            foreach (var field in fieldsToUpdate)
+            {
+                var input = PromptUser($"Enter new value for {field}");
+                if (!string.IsNullOrWhiteSpace(input))
+                {
+                    updates[field] = input;
+                }
+            }
+            return updates;
+        }
     }
 }

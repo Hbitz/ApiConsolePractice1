@@ -222,13 +222,12 @@ namespace ApiConsolePractice1.Services
 
         // *** PATCH-requests ***
 
-        public async Task<Result> UpdateUserBio(string newBio)
+        public async Task<Result> UpdateUserProfile(Dictionary<string, string> updateRequest)
         {
             try
             {
-                var payload = new UserUpdateRequest { Bio = newBio };
                 string url = GithubUrlBuilder.UpdateUserBio();
-                var response = await SendPatchRequest(url, payload);
+                var response = await SendPatchRequest(url, updateRequest);
 
                 if (!response.IsSuccessStatusCode)
                 {
