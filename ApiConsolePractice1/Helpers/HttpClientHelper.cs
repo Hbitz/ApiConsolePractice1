@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ApiConsolePractice1.Helpers
@@ -79,6 +80,34 @@ namespace ApiConsolePractice1.Helpers
                 {
                     AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
                 }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                throw;
+            }
+        }
+        
+        public static async Task<HttpResponseMessage> SendPatchRequestAsync(HttpClient client, string apiUrl, object payload)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var request = new HttpRequestMessage(HttpMethod.Patch, apiUrl)
+                {
+                    Content = content
+                };
+
+                var response = await client.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                }
+
                 return response;
             }
             catch (Exception ex)

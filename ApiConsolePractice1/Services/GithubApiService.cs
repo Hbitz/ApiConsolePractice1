@@ -14,6 +14,14 @@ namespace ApiConsolePractice1.Services
 {
     internal class GithubApiService : BaseApiService
     {
+        /* Methods are listed by type of request:
+         * GET
+         * DELETE
+         * POST
+         * PATCH 
+         * Display/public/helper methods
+         */
+
         public GithubApiService(IConfiguration config) : base(config)
         {
 
@@ -173,6 +181,8 @@ namespace ApiConsolePractice1.Services
                 return Result<List<GithubRepository>>.Failure($"Exception: {ex.Message}");
             }
         }
+        
+        
         // *** DELETE-requetss ***
         public async Task<Result> UnstarRepositoryAsync(string owner, string repo)
         {
@@ -194,6 +204,7 @@ namespace ApiConsolePractice1.Services
         }
 
 
+
         // *** POST-requests ***
         public async Task<Result> StarRepositoryAsync(string owner, string repo)
         {
@@ -207,6 +218,30 @@ namespace ApiConsolePractice1.Services
 
             return Result.Success();
         }
+
+
+        // *** PATCH-requests ***
+
+        public async Task<Result> UpdateUserBio(string newBio)
+        {
+            try
+            {
+                var payload = new UserUpdateRequest { Bio = newBio };
+                string url = GithubUrlBuilder.UpdateUserBio();
+                var response = await SendPatchRequest(url, payload);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result.Failure($"Failed to update bio: {response.StatusCode} - {response.ReasonPhrase}");
+                }
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Exception: {ex.Message}");
+            }
+        }
+
 
 
         // *** Display and helper methods ***

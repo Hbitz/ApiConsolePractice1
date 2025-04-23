@@ -35,6 +35,7 @@ namespace ApiConsolePractice1.Menus
                         {
                         "Get Github User Repos",
                         "View My Starred Repositories",
+                        "Update User Profile Bio",
                         "Exit"
                         }));
 
@@ -45,6 +46,9 @@ namespace ApiConsolePractice1.Menus
                         break;
                     case "View My Starred Repositories":
                         await ViewStarredRepositoriesAsync();
+                        break;
+                    case "Update User Profile Bio":
+                        await UpdateBioAsync();
                         break;
                     case "Exit":
                         return;
@@ -139,6 +143,17 @@ namespace ApiConsolePractice1.Menus
         private async Task<Result<string>> GetAuthenticatedUsername()
         {
             return await _githubApiService.GetAuthenticatedUsername();
+        }
+
+        private async Task UpdateBioAsync()
+        {
+            var newBio = PromptUser("Enter your new bio:");
+
+            var result = await _githubApiService.UpdateUserBio(newBio);
+            ResultDisplayHelper.DisplayResult(result);
+
+            AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
+            Console.ReadKey();
         }
 
     }

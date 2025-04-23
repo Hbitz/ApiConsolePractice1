@@ -65,5 +65,10 @@ namespace ApiConsolePractice1.Helpers
         {
             return $"{BaseUrl}user/starred/{owner}/{repo}";
         }
+
+        public static string UpdateUserBio()
+        {
+            return $"{BaseUrl}user";
+        }
     }
 }
