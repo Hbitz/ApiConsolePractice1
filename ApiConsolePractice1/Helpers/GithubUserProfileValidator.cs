@@ -40,7 +40,7 @@ namespace ApiConsolePractice1.Helpers
                     break;
 
                 case "blog":
-                    if (!Uri.TryCreate(value, UriKind.Absolute, out _))
+                    if (!Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out _))
                     {
                         return Result.Failure("Invalid blog URL.");
                     }
