@@ -120,6 +120,8 @@ namespace ApiConsolePractice1.Menus
             if (!authUserResult.IsSuccess)
             {
                 AnsiConsole.MarkupLine($"[red]{authUserResult.ErrorMessage}[/]");
+                AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
+                Console.ReadKey();
                 return;
             }
 
@@ -130,6 +132,8 @@ namespace ApiConsolePractice1.Menus
             if (!result.IsSuccess)
             {
                 AnsiConsole.MarkupLine($"[red]{result.ErrorMessage}[/]");
+                AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
+                Console.ReadKey();
                 return;
             }
 

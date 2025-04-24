@@ -7,44 +7,62 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ApiConsolePractice1.Models;
 
 namespace ApiConsolePractice1.Helpers
 {
+    // TODO
+    // * Static class makes it difficult to extend if you need to add more behavior(retry logic, timeouts etc)
+    //   Consider refactoring to using IHttpClientFactory?
+    // 
     internal class HttpClientHelper
     {
-        public static HttpClient GetConfiguredHttpClient(IConfiguration config)
+        public static Result<HttpClient> GetConfiguredHttpClient(IConfiguration config)
         {
-            var httpClient = new HttpClient();
-            var token = config["GithubToken"];
-
-            if (!string.IsNullOrEmpty(token))
+            try
             {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("c# console app api practice");
+                var httpClient = new HttpClient();
+                var token = config["GithubToken"];
 
-            return httpClient;
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("c# console app api practice");
+
+                return Result<HttpClient>.Success(httpClient);
+            }
+            catch (Exception ex)
+            {
+                return Result<HttpClient>.Failure($"Error configuring HttpClient: {ex.Message}");
+            }
         }
 
-        public static async Task<HttpResponseMessage> SendRequestAsync(HttpClient client, string apiUrl)
+        public static async Task<Result<HttpResponseMessage>> SendRequestAsync(HttpClient client, string apiUrl)
         {
             try
             {
                 var response = await client.GetAsync(apiUrl);
                 if (!response.IsSuccessStatusCode)
                 {
-                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    AnsiConsole.MarkupLine($"[red]Error: {(int)response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
                 }
-                return response;
+                return Result<HttpResponseMessage>.Success(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<HttpResponseMessage>.Failure($"[red]HttpRequestException failed: {ex.Message}[/]");
+                throw;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                return Result<HttpResponseMessage>.Failure($"[red]Exception: {ex.Message}[/]");
                 throw;
             }
         }
 
-        public static async Task<HttpResponseMessage> SendPostRequestAsync(HttpClient client, string apiUrl)
+        public static async Task<Result<HttpResponseMessage>> SendPostRequestAsync(HttpClient client, string apiUrl)
         {
             try
             {
@@ -54,18 +72,23 @@ namespace ApiConsolePractice1.Helpers
                 var response = await client.PutAsync(apiUrl, content); // PUT to star repo
                 if (!response.IsSuccessStatusCode)
                 {
-                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
                 }
-                return response;
+                return Result<HttpResponseMessage>.Success(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<HttpResponseMessage>.Failure($"[red]HttpRequestException: {ex.Message}[/]");
+                throw;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                return Result<HttpResponseMessage>.Failure($"[red]Exception: {ex.Message}[/]");
                 throw;
             }
         }
 
-        public static async Task<HttpResponseMessage> SendDeleteRequestAsync(HttpClient client, string apiUrl)
+        public static async Task<Result<HttpResponseMessage>> SendDeleteRequestAsync(HttpClient client, string apiUrl)
         {
             try
             {
@@ -78,18 +101,23 @@ namespace ApiConsolePractice1.Helpers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
                 }
-                return response;
+                return Result<HttpResponseMessage>.Success(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<HttpResponseMessage>.Failure($"[red]HTTP Request failed: {ex.Message}[/]");
+                throw;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                return Result<HttpResponseMessage>.Failure($"[red]Exception: {ex.Message}[/]");
                 throw;
             }
         }
         
-        public static async Task<HttpResponseMessage> SendPatchRequestAsync(HttpClient client, string apiUrl, Dictionary<string, string> payload)
+        public static async Task<Result<HttpResponseMessage>> SendPatchRequestAsync(HttpClient client, string apiUrl, Dictionary<string, string> payload)
         {
             try
             {
@@ -105,14 +133,19 @@ namespace ApiConsolePractice1.Helpers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    AnsiConsole.MarkupLine($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
                 }
 
-                return response;
+                return Result<HttpResponseMessage>.Success(response);
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<HttpResponseMessage>.Failure($"[red]HTTP Request failed: {ex.Message}[/]");
+                throw;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Exception: {ex.Message}[/]");
+                return Result<HttpResponseMessage>.Failure($"[red]Exception: {ex.Message}[/]");
                 throw;
             }
         }

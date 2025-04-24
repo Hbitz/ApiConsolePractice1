@@ -39,10 +39,11 @@ namespace ApiConsolePractice1.Services
         public async Task<Result<string>> GetAuthenticatedUsername()
         {
             string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
-            var response = await GetApiResponse(apiUrl);
+            var responseResult = await GetApiResponse(apiUrl);
 
-            if (response.IsSuccessStatusCode)
+            if (responseResult.IsSuccess)
             {
+                var response = responseResult.Data;
                 var json = await response.Content.ReadAsStringAsync();
                 var userInfo = JsonSerializer.Deserialize<GithubUserInfo>(json);
                 return Result<string>.Success(userInfo.Login);
@@ -54,12 +55,16 @@ namespace ApiConsolePractice1.Services
         private async Task<Result<List<GithubRepository>>> FetchAllRepositories(string apiUrl, int perPage = 100)
         {
             var url = $"{apiUrl}?per_page={perPage}";
-            var response = await GetApiResponse(url);
+            var responseResult = await GetApiResponse(url);
 
-            if (!response.IsSuccessStatusCode)
+
+            if (!responseResult.IsSuccess)
             {
-                return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                var errorMessage = responseResult.ErrorMessage;
+                return Result<List<GithubRepository>>.Failure($"Error: {errorMessage}");
             }
+
+            var response = responseResult.Data;
 
             var json = await response.Content.ReadAsStringAsync();
             var repos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
@@ -106,12 +111,14 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string apiUrl = GithubUrlBuilder.GetRepoDetails(owner, repo);
-                var response = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponse(apiUrl);
 
-                if (!response.IsSuccessStatusCode)
+                if (!responseResult.IsSuccess)
                 {
-                    return Result<GithubRepository>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<GithubRepository>.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
                 }
+
+                var response = responseResult.Data;
 
                 var json = await response.Content.ReadAsStringAsync();
                 var repoInfo = JsonSerializer.Deserialize<GithubRepository>(json);
@@ -137,12 +144,14 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string apiUrl = GithubUrlBuilder.GetRepoCommits(owner, repo);
-                var response = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponse(apiUrl);
 
-                if (!response.IsSuccessStatusCode)
+
+                if (!responseResult.IsSuccess)
                 {
-                    return Result<List<CommitInfo>>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<List<CommitInfo>>.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
                 }
+                var response = responseResult.Data;
                 var json = await response.Content.ReadAsStringAsync();
                 var commits = JsonSerializer.Deserialize<List<CommitInfo>>(json);
                 //PrintCommitsTable(commits);
@@ -165,12 +174,14 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string apiUrl = GithubUrlBuilder.GetStarredRepositories();
-                var response = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponse(apiUrl);
 
-                if (!response.IsSuccessStatusCode)
+
+                if (!responseResult.IsSuccess)
                 {
-                    return Result<List<GithubRepository>>.Failure($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    return Result<List<GithubRepository>>.Failure($"Error: {responseResult.ErrorMessage}");
                 }
+                var response = responseResult.Data;
 
                 var json = await response.Content.ReadAsStringAsync();
                 var starredRepos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
@@ -194,12 +205,14 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
-                var response = await GetApiResponse(apiUrl);
-                
-                if (!response.IsSuccessStatusCode)
+                var responseResult = await GetApiResponse(apiUrl);
+
+
+                if (!responseResult.IsSuccess)
                 {
-                    return Result<GithubUserProfile>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<GithubUserProfile>.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
                 }
+                var response = responseResult.Data;
 
                 var json = await response.Content.ReadAsStringAsync();
                 var profile = JsonSerializer.Deserialize<GithubUserProfile>(json);
@@ -219,11 +232,12 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string url = GithubUrlBuilder.UnstarRepository(owner, repo);
-                var response = await SendDeleteRequest(url);
+                var responseResult = await SendDeleteRequest(url);
 
-                if (!response.IsSuccessStatusCode)
+
+                if (!responseResult.IsSuccess)
                 {
-                    return Result.Failure($"Failed to unstar repository: {response.StatusCode} - {response.ReasonPhrase}");
+                    return Result.Failure($"Failed to unstar repository: {responseResult.ErrorMessage}");
                 }
                 return Result.Success();
             }
@@ -239,11 +253,11 @@ namespace ApiConsolePractice1.Services
         public async Task<Result> StarRepositoryAsync(string owner, string repo)
         {
             string url = GithubUrlBuilder.StarRepository(owner, repo);
-            var response = await SendPutRequest(url);
+            var responseResult = await SendPutRequest(url);
 
-            if (!response.IsSuccessStatusCode)
+            if (!responseResult.IsSuccess)
             {
-                return Result.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                return Result.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
             }
 
             return Result.Success();
@@ -257,11 +271,11 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string url = GithubUrlBuilder.UpdateUserBio();
-                var response = await SendPatchRequest(url, updateRequest);
+                var responseResult = await SendPatchRequest(url, updateRequest);
 
-                if (!response.IsSuccessStatusCode)
+                if (!responseResult.IsSuccess)
                 {
-                    return Result.Failure($"Failed to update bio: {response.StatusCode} - {response.ReasonPhrase}");
+                    return Result.Failure($"Failed to update bio: {responseResult.ErrorMessage}");
                 }
                 return Result.Success();
             }
