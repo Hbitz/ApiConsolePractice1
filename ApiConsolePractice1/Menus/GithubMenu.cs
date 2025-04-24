@@ -16,6 +16,7 @@ namespace ApiConsolePractice1.Menus
         private readonly GithubRepoMenu _githubRepoMenu;
         private readonly GithubApiService _githubApiService;
 
+        // TODO - Decouple menus from each other?
         public GithubMenu(GithubApiService githubApiService, GithubRepoMenu githubRepoMenu)
         {
             _githubApiService = githubApiService;

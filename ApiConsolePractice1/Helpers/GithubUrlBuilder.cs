@@ -14,6 +14,8 @@ namespace ApiConsolePractice1.Helpers
         /// GET requests
         /// </summary>
         /// <returns></returns>
+        
+        // TODO - BuildUrl-method to validate argument and return error info?
 
         //Get URl for authenticated user's username via bearer token
         public static string GetAuthenticatedUserInfo()

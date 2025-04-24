@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace ApiConsolePractice1.Models
 {
+    // for JsonPlaceHolder api
     internal class Post
     {
         [JsonPropertyName("userId")]

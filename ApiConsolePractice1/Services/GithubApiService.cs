@@ -22,6 +22,12 @@ namespace ApiConsolePractice1.Services
          * Display/public/helper methods
          */
 
+        // TODO
+        // * Review if this is handling too many GithubRelated task, not just the GithubApi.
+        //   Possibly make services like GithubRepositoryService for all interactions regarding repository?
+        // * Currently using Result<T> for success/failure states.
+        //   Maybe create exception class for more contextual information, e.g. error due to authentication failure, network issue or specific API response error.
+        //   Custom exceptions provides a more cosistent and readable error flow.
         public GithubApiService(IConfiguration config) : base(config)
         {
 

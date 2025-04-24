@@ -20,6 +20,7 @@ namespace ApiConsolePractice1.Helpers
         // github email settings - must not be set to private
         // Bearer token - must have email permissions
 
+        // Todo - break down validation into smaller methods
         public static Result Validate(string field, string value)
         {
             switch (field.ToLower())

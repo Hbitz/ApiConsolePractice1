@@ -13,6 +13,8 @@ namespace ApiConsolePractice1
 {
     internal class Program
     {
+        // Major concerns:
+        // New Exception class, or extend Result<T> to handle error codes for more specification regarding error handling? 
         static async Task Main(string[] args)
         {
             // Dependency injection
