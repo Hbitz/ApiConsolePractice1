@@ -148,6 +148,13 @@ namespace ApiConsolePractice1.Menus
 
         private async Task UpdateUserProfileAsync()
         {
+            // Get profile information of user
+            var profileResult = await _githubApiService.GetAuthenticatedUserProfileAsync();
+
+            // Display the current information
+            DisplayUserProfileInformation(profileResult);
+
+            // Let use select which information they want to update
             var updateRequest = PromptForUserProfileUpdate();
 
             // Ensure we are updating at least one value
@@ -164,6 +171,26 @@ namespace ApiConsolePractice1.Menus
 
             AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
             Console.ReadKey();
+        }
+
+        private bool DisplayUserProfileInformation(Result<GithubUserProfile> profileResult)
+        {
+            if (!profileResult.IsSuccess)
+            {
+                AnsiConsole.MarkupLine($"[red]{profileResult.ErrorMessage}[/]");
+                return false;
+            }
+
+            var profile = profileResult.Data;
+
+            AnsiConsole.MarkupLine("[blue]Current Profile Info:[/]");
+            AnsiConsole.MarkupLine($"[green]Name:[/] {profile.Name ?? "N/A"}");
+            AnsiConsole.MarkupLine($"[green]Email:[/] {profile.Email ?? "N/A"}");
+            AnsiConsole.MarkupLine($"[green]Blog:[/] {profile.Blog ?? "N/A"}");
+            AnsiConsole.MarkupLine($"[green]Bio:[/] {profile.Bio ?? "N/A"}");
+            AnsiConsole.MarkupLine("");
+
+            return true;
         }
 
         // Validation and specified requirements are handled in Helpers/GithubUserProfileValidator.cs

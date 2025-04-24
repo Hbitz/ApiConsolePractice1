@@ -182,6 +182,30 @@ namespace ApiConsolePractice1.Services
             }
         }
         
+        // This is using the same endpoint as when we want to authenticate user. Is this a problem?
+        public async Task<Result<GithubUserProfile>> GetAuthenticatedUserProfileAsync()
+        {
+            try
+            {
+                string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
+                var response = await GetApiResponse(apiUrl);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result<GithubUserProfile>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var profile = JsonSerializer.Deserialize<GithubUserProfile>(json);
+
+                return Result<GithubUserProfile>.Success(profile);
+            }
+            catch (Exception ex)
+            {
+                return Result<GithubUserProfile>.Failure($"Excetion: {ex.Message}");
+            }
+        }
+
         
         // *** DELETE-requetss ***
         public async Task<Result> UnstarRepositoryAsync(string owner, string repo)
