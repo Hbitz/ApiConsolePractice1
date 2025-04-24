@@ -166,14 +166,7 @@ namespace ApiConsolePractice1.Menus
             Console.ReadKey();
         }
 
-        // TODO - Lacks validation and error handling.
-        // name - Optional, max 255 char.
-        // email - Must be verified github email.
-        // blog - Must be valid URL.
-        // bio - Max 160 characters.
-
-        // github email settings must not be set to private
-
+        // Validation and specified requirements are handled in Helpers/GithubUserProfileValidator.cs
         private Dictionary<string, string> PromptForUserProfileUpdate()
         {
             var updates = new Dictionary<string, string>();
@@ -193,10 +186,28 @@ namespace ApiConsolePractice1.Menus
 
             foreach (var field in fieldsToUpdate)
             {
-                var input = PromptUser($"Enter new value for {field}");
-                if (!string.IsNullOrWhiteSpace(input))
+                while (true)
                 {
-                    updates[field] = input;
+                    var input = PromptUser($"Enter new value for {field}");
+                    if (string.IsNullOrWhiteSpace(input))
+                    {
+                        break;
+                    }
+                    
+                    // We use the non-generic Result class that we use for all our api calls.
+                    // We could create a ValidationResult class, but that would be redundant.
+                    var result = GithubUserProfileValidator.Validate(field, input);
+                    
+                    // The bool is called "IsSuccess" but in this case, we can simply pretend it's called "IsValidated"
+                    if (result.IsSuccess)
+                    {
+                        updates[field] = input;
+                        break;
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine($"[red]{result.ErrorMessage} Please try again.[/]");
+                    }
                 }
             }
             return updates;
