@@ -45,8 +45,7 @@ namespace ApiConsolePractice1.Helpers
                 var response = await client.GetAsync(apiUrl);
                 if (!response.IsSuccessStatusCode)
                 {
-                    AnsiConsole.MarkupLine($"[red]Error: {(int)response.StatusCode} - {response.ReasonPhrase}[/]");
-                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"{(int)response.StatusCode} - {response.ReasonPhrase}");
                 }
                 return Result<HttpResponseMessage>.Success(response);
             }
@@ -72,7 +71,7 @@ namespace ApiConsolePractice1.Helpers
                 var response = await client.PutAsync(apiUrl, content); // PUT to star repo
                 if (!response.IsSuccessStatusCode)
                 {
-                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"{(int)response.StatusCode} - {response.ReasonPhrase}");
                 }
                 return Result<HttpResponseMessage>.Success(response);
             }
@@ -101,7 +100,7 @@ namespace ApiConsolePractice1.Helpers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"{(int)response.StatusCode} - {response.ReasonPhrase}");
                 }
                 return Result<HttpResponseMessage>.Success(response);
             }
@@ -133,7 +132,7 @@ namespace ApiConsolePractice1.Helpers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return Result<HttpResponseMessage>.Failure($"[red]Error: {response.StatusCode} - {response.ReasonPhrase}[/]");
+                    return Result<HttpResponseMessage>.Failure($"{(int)response.StatusCode} - {response.ReasonPhrase}");
                 }
 
                 return Result<HttpResponseMessage>.Success(response);

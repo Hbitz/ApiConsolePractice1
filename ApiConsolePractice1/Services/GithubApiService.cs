@@ -61,7 +61,7 @@ namespace ApiConsolePractice1.Services
             if (!responseResult.IsSuccess)
             {
                 var errorMessage = responseResult.ErrorMessage;
-                return Result<List<GithubRepository>>.Failure($"Error: {errorMessage}");
+                return Result<List<GithubRepository>>.Failure(errorMessage);
             }
 
             var response = responseResult.Data;
@@ -78,6 +78,7 @@ namespace ApiConsolePractice1.Services
         }
 
         // Fetch repositories based on username or authenticated user
+        // TODO - check validation error messages flow
         public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username= "", bool isAuthenticatedUser = false)
         {
             string apiUrl = isAuthenticatedUser
@@ -115,7 +116,7 @@ namespace ApiConsolePractice1.Services
 
                 if (!responseResult.IsSuccess)
                 {
-                    return Result<GithubRepository>.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
+                    return Result<GithubRepository>.Failure($"{responseResult.ErrorMessage}");
                 }
 
                 var response = responseResult.Data;
@@ -149,7 +150,7 @@ namespace ApiConsolePractice1.Services
 
                 if (!responseResult.IsSuccess)
                 {
-                    return Result<List<CommitInfo>>.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
+                    return Result<List<CommitInfo>>.Failure($"{responseResult.ErrorMessage}");
                 }
                 var response = responseResult.Data;
                 var json = await response.Content.ReadAsStringAsync();
@@ -158,7 +159,7 @@ namespace ApiConsolePractice1.Services
 
                 if (commits == null || commits.Count == 0)
                 {
-                    return Result<List<CommitInfo>>.Failure("[yellow]No commits found.[/]");
+                    return Result<List<CommitInfo>>.Failure("No commits found.");
                 }
 
                 return Result<List<CommitInfo>>.Success(commits);
@@ -179,7 +180,7 @@ namespace ApiConsolePractice1.Services
 
                 if (!responseResult.IsSuccess)
                 {
-                    return Result<List<GithubRepository>>.Failure($"Error: {responseResult.ErrorMessage}");
+                    return Result<List<GithubRepository>>.Failure($"{responseResult.ErrorMessage}");
                 }
                 var response = responseResult.Data;
 
@@ -210,7 +211,7 @@ namespace ApiConsolePractice1.Services
 
                 if (!responseResult.IsSuccess)
                 {
-                    return Result<GithubUserProfile>.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
+                    return Result<GithubUserProfile>.Failure($"{responseResult.ErrorMessage}");
                 }
                 var response = responseResult.Data;
 
@@ -257,7 +258,7 @@ namespace ApiConsolePractice1.Services
 
             if (!responseResult.IsSuccess)
             {
-                return Result.Failure($"[red]Error: {responseResult.ErrorMessage}[/]");
+                return Result.Failure($"{responseResult.ErrorMessage}");
             }
 
             return Result.Success();
