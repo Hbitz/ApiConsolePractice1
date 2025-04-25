@@ -12,7 +12,7 @@ namespace ApiConsolePractice1.Helpers
     {
         // Field requirements:
         // name - Optional, max 255 char.
-        // email - Must be verified github email.
+        // email - Must be an emailed that's already verified to the github account.
         // blog - Must be valid URL.
         // bio - Max 160 characters.
 
@@ -20,7 +20,7 @@ namespace ApiConsolePractice1.Helpers
         // github email settings - must not be set to private
         // Bearer token - must have email permissions
 
-        // Todo - break down validation into smaller methods
+        // Todo - break down validation into smaller methods?
         public static Result Validate(string field, string value)
         {
             switch (field.ToLower())
@@ -61,7 +61,7 @@ namespace ApiConsolePractice1.Helpers
         }
 
         // Prerequisite: The email provided MUST be an already verified email of the user's Github Account.
-        // This is not foolproof, it's just a first step to handle obvious non-working emails.
+        // This is not foolproof, it's just a first step to handle obvious non-working emails and reduce unecessary errors.
         private static bool IsValidEmail(string email)
         {
             try

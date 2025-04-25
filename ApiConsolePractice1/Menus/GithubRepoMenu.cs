@@ -12,6 +12,7 @@ namespace ApiConsolePractice1.Menus
 {
     internal class GithubRepoMenu
     {
+        // TODO - Check if we can simplify this, check proper dependency injection
         private readonly GithubApiService _githubApiService;
 
         public GithubRepoMenu(GithubApiService githubApiService)
@@ -19,13 +20,15 @@ namespace ApiConsolePractice1.Menus
             _githubApiService = githubApiService;
         }
 
+        // After user gets a list of repositories from an searched username, GithubMenu sends that list along so we can take action here(GithubRepoMenu).
         public async Task ShowMenu(string username, List<GithubRepository> repos)
         {
             while (true)
             {
                 AnsiConsole.Clear();
                 AnsiConsole.Write(new FigletText("Repo Actions").Color(Color.Yellow));
-                _githubApiService.DisplayRepositories(repos);
+                // Display repo.
+                _githubApiService.DisplayRepositories(repos); 
 
                 // Let user make new choice on what they want to do
                 var actionChoice = AnsiConsole.Prompt(

@@ -10,6 +10,7 @@ namespace ApiConsolePractice1.Helpers
 {
     internal class GithubDisplayHelper
     {
+        // Todo - Possibly simplify methods by trading readability to reduce redundancy?
         public static void DisplaySingleRepositoryDetails(GithubRepository repo)
         {
             PrintRepositoriesTable(new List<GithubRepository> { repo }, extended: true);
@@ -25,7 +26,7 @@ namespace ApiConsolePractice1.Helpers
             PrintCommitsTable(commits);
         }
 
-        public static void PrintRepositoriesTable(List<GithubRepository> repos, bool extended = false)
+        private static void PrintRepositoriesTable(List<GithubRepository> repos, bool extended = false)
         {
             var table = new Table();
             table.AddColumn("[green]Name[/]");

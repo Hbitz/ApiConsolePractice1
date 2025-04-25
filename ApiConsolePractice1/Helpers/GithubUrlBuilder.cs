@@ -8,13 +8,7 @@ namespace ApiConsolePractice1.Helpers
 {
     internal static class GithubUrlBuilder
     {
-        private const string BaseUrl = "https://api.github.com/";
-
-        /// <summary>
-        /// GET requests
-        /// </summary>
-        /// <returns></returns>
-        
+        private const string BaseUrl = "https://api.github.com/";       
         // TODO - BuildUrl-method to validate argument and return error info?
 
         //Get URl for authenticated user's username via bearer token
@@ -55,14 +49,6 @@ namespace ApiConsolePractice1.Helpers
         {
             return $"{BaseUrl}user/starred/{owner}/{repo}"; 
         }
-
-        /// 
-        // Authentication - Yes (Bearer token/PAT)
-        // Request Body - None
-        // Respones 
-            // 204 No content - Success
-            // 404 Not found - Repo doesn't exist or missing authentication
-            // 401 Unauthorized - Missin/invalid token
         public static string StarRepository(string owner, string repo)
         {
             return $"{BaseUrl}user/starred/{owner}/{repo}";

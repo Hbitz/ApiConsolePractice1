@@ -20,7 +20,7 @@ namespace ApiConsolePractice1.Menus
             while (true)
             {
                 AnsiConsole.Clear();
-                AnsiConsole.Write(new FigletText("API Caller").Color(Color.Blue)); // Fancy ASCII banner
+                AnsiConsole.Write(new FigletText("API Caller").Color(Color.Blue));
 
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()

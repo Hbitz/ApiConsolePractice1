@@ -17,6 +17,7 @@ namespace ApiConsolePractice1.Helpers
     // 
     internal class HttpClientHelper
     {
+        // Configure client
         public static Result<HttpClient> GetConfiguredHttpClient(IConfiguration config)
         {
             try
@@ -65,10 +66,10 @@ namespace ApiConsolePractice1.Helpers
         {
             try
             {
-                var content = new StringContent(""); // Github requires empty body for starring
+                var content = new StringContent(""); // Github requires empty body certain PUT endpoints, such as starring a repository.
                 content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-                var response = await client.PutAsync(apiUrl, content); // PUT to star repo
+                var response = await client.PutAsync(apiUrl, content);
                 if (!response.IsSuccessStatusCode)
                 {
                     return Result<HttpResponseMessage>.Failure($"{(int)response.StatusCode} - {response.ReasonPhrase}");

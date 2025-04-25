@@ -13,11 +13,7 @@ namespace ApiConsolePractice1
     internal class Program
     {
         // Major concerns:
-        // New Exception class, or extend Result<T> to handle error codes for more specification regarding error handling? 
-        
-        // TODO
-        // Possible extension of above: Add status codes of failures to Result?
-        // Clear up duplicated error messages and creat consistent UI behavior after displaying messages
+        // New Exception class, or extend Result<T> to handle to further improv errore handling? 
 
         static async Task Main(string[] args)
         {

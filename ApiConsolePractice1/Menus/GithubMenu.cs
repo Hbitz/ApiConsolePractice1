@@ -69,9 +69,8 @@ namespace ApiConsolePractice1.Menus
         {
             var result = await _githubApiService.GetStarredRepositoriesAsync();
             
-            // Show result, whether it's success or failure/error
+            // If IsSuccess is true, DisplayRepositoryList, else displays error information.
             ResultDisplayHelper.DisplayResult(result, GithubDisplayHelper.DisplayRepositoryList);
-            // If error, let user go back when he's ready.
             if (!result.IsSuccess)
             {
                 return;
@@ -111,7 +110,7 @@ namespace ApiConsolePractice1.Menus
             // Get username to search for
             var username = PromptUser("Enter GitHub username:");
 
-            // Gets username of via bearer token
+            // Gets username of user via bearer token
             var authUserResult = await GetAuthenticatedUsername();
 
             if (!authUserResult.IsSuccess)
@@ -130,10 +129,11 @@ namespace ApiConsolePractice1.Menus
                 return;
             }
 
-            // Display the next options
+            // Display the next options based 
             await _githubRepoMenu.ShowMenu(username, result.Data);
         }
 
+        // Todo - Worth extracing a method just for the api call?
         private async Task<Result<List<GithubRepository>>> GetUserRepositories(string username, bool isSelf)
         {
             return await _githubApiService.GetUserRepositories(username, isSelf);
@@ -150,7 +150,7 @@ namespace ApiConsolePractice1.Menus
             var profileResult = await _githubApiService.GetAuthenticatedUserProfileAsync();
 
             // Display the current information
-            DisplayUserProfileInformation(profileResult);
+            DisplayGithubUserProfileInformation(profileResult);
 
             // Let use select which information they want to update
             var updateRequest = PromptForUserProfileUpdate();
@@ -165,13 +165,14 @@ namespace ApiConsolePractice1.Menus
             }
 
             var result = await _githubApiService.UpdateUserProfile(updateRequest);
-            ResultDisplayHelper.DisplayResult(result, false);
+            ResultDisplayHelper.DisplayResult(result, false); // add "false" to not pause on error and duplicate "press any key to return to menu" behavior.
 
             AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
             Console.ReadKey();
         }
 
-        private bool DisplayUserProfileInformation(Result<GithubUserProfile> profileResult)
+        // TODO - why bool? Convert to void helper method?
+        private bool DisplayGithubUserProfileInformation(Result<GithubUserProfile> profileResult)
         {
             if (!profileResult.IsSuccess)
             {
@@ -196,6 +197,7 @@ namespace ApiConsolePractice1.Menus
         {
             var updates = new Dictionary<string, string>();
 
+            // Multi-select
             var fieldsToUpdate = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
                 .Title("[green]Which fields would you like to update?[/]")
