@@ -19,7 +19,6 @@ namespace ApiConsolePractice1.Services
          * DELETE
          * POST
          * PATCH 
-         * Display/public/helper methods
          */
 
         // TODO
@@ -32,7 +31,7 @@ namespace ApiConsolePractice1.Services
         {
 
         }
-        // Instead of simply returning a Task, we return a task of <Result> to improve error handling
+        // Instead of simply returning a Task, we return wrap it with Result<T> to improve error handling.
 
         // *** GET-requests ***
 
@@ -57,7 +56,6 @@ namespace ApiConsolePractice1.Services
             var url = $"{apiUrl}?per_page={perPage}";
             var responseResult = await GetApiResponse(url);
 
-
             if (!responseResult.IsSuccess)
             {
                 var errorMessage = responseResult.ErrorMessage;
@@ -73,8 +71,7 @@ namespace ApiConsolePractice1.Services
             {
                 return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response.");
             }
-
-            return Result<List<GithubRepository>>.Success(repos);
+                        return Result<List<GithubRepository>>.Success(repos);
         }
 
         // Fetch repositories based on username or authenticated user
@@ -129,10 +126,8 @@ namespace ApiConsolePractice1.Services
                     return Result<GithubRepository>.Failure("Failed to deserialize repository details");
                 }
 
-                
-                //PrintRepositoriesTable(new List<GithubRepository> { repoInfo }, true); // True to print extended/detailed info
                 return Result<GithubRepository>.Success(repoInfo);
-                }
+            }
             catch (Exception ex)
             {
                 return Result<GithubRepository>.Failure($"Exception: {ex.Message}");
@@ -147,7 +142,6 @@ namespace ApiConsolePractice1.Services
                 string apiUrl = GithubUrlBuilder.GetRepoCommits(owner, repo);
                 var responseResult = await GetApiResponse(apiUrl);
 
-
                 if (!responseResult.IsSuccess)
                 {
                     return Result<List<CommitInfo>>.Failure($"{responseResult.ErrorMessage}");
@@ -155,13 +149,11 @@ namespace ApiConsolePractice1.Services
                 var response = responseResult.Data;
                 var json = await response.Content.ReadAsStringAsync();
                 var commits = JsonSerializer.Deserialize<List<CommitInfo>>(json);
-                //PrintCommitsTable(commits);
 
                 if (commits == null || commits.Count == 0)
                 {
                     return Result<List<CommitInfo>>.Failure("No commits found.");
                 }
-
                 return Result<List<CommitInfo>>.Success(commits);
             }
             catch (Exception ex)
@@ -285,52 +277,5 @@ namespace ApiConsolePractice1.Services
                 return Result.Failure($"Exception: {ex.Message}");
             }
         }
-
-
-
-        // *** Display and helper methods ***
-
-
-        // Display repositories in a table format
-        // In some cases, print extensive info about repository.
-        private void PrintRepositoriesTable(List<GithubRepository> repos, bool extended = false)
-        {
-            var table = new Table();
-            table.AddColumn("[green]Name[/]");
-            table.AddColumn("[blue]Stars[/]");
-            table.AddColumn("[cyan]Visibility[/]");
-            table.AddColumn("[grey]Description[/]");
-
-            if (extended)
-            {
-                table.AddColumn("[magenta]Language[/]");
-                table.AddColumn("[yellow]Forks[/]");
-                table.AddColumn("[purple]Has Wiki[/]");
-                table.AddColumn("[white]Last Updated[/]");
-            }
-
-            foreach (var repo in repos)
-            {
-                var baseRow = new List<string>
-                {
-                    repo.Name,
-                    repo.Stars.ToString(),
-                    repo.Visibility,
-                    repo.Description,
-                };
-
-                if (extended)
-                {
-                    baseRow.Add(repo.Language ?? "N/A");
-                    baseRow.Add(repo.Forks.ToString());
-                    baseRow.Add(repo.HasWiki.ToString());
-                    baseRow.Add(repo.LastUpdate.ToString());
-                }
-                table.AddRow(baseRow.Select(cell => cell ?? "N/A").ToArray());
-            }
-
-            AnsiConsole.Write(table);
-        }
-
     }
 }
