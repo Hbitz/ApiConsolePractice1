@@ -97,7 +97,7 @@ namespace ApiConsolePractice1.Services
                 return result;
             }
 
-            PrintRepositoriesTable(result.Data);
+            GithubDisplayHelper.DisplayRepositoryList(result.Data);
             return result;
         }
 
@@ -290,11 +290,6 @@ namespace ApiConsolePractice1.Services
 
         // *** Display and helper methods ***
 
-        // Public method 
-        public void DisplayRepositories(List<GithubRepository> repositories)
-        {   
-            PrintRepositoriesTable(repositories);
-        }
 
         // Display repositories in a table format
         // In some cases, print extensive info about repository.
@@ -334,24 +329,6 @@ namespace ApiConsolePractice1.Services
                 table.AddRow(baseRow.Select(cell => cell ?? "N/A").ToArray());
             }
 
-            AnsiConsole.Write(table);
-        }
-
-        private static void PrintCommitsTable(List<CommitInfo>? commits)
-        {
-            var table = new Table();
-            table.Border(TableBorder.Rounded);
-            table.AddColumn("[green]Commit Message[/]");
-            table.AddColumn("[blue]Author[/]");
-            table.AddColumn("[grey]Date[/]");
-
-            foreach (var commit in commits)
-            {
-                var msg = commit.Commit.Message;
-                var author = commit.Commit.Author?.Name ?? "Unknown";
-                var date = commit.Commit.Author?.Date.ToString("g") ?? "Unkown";
-                table.AddRow(msg, author, date);
-            }
             AnsiConsole.Write(table);
         }
 

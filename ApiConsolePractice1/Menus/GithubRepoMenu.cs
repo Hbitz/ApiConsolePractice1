@@ -28,7 +28,7 @@ namespace ApiConsolePractice1.Menus
                 AnsiConsole.Clear();
                 AnsiConsole.Write(new FigletText("Repo Actions").Color(Color.Yellow));
                 // Display repo.
-                _githubApiService.DisplayRepositories(repos); 
+                GithubDisplayHelper.DisplayRepositoryList(repos);
 
                 // Let user make new choice on what they want to do
                 var actionChoice = AnsiConsole.Prompt(
