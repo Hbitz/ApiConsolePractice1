@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using ApiConsolePractice1.Menus;
 using ApiConsolePractice1.Models;
 using ApiConsolePractice1.Services;
-using ApiConsolePractice1.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
