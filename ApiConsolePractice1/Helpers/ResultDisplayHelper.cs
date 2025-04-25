@@ -10,7 +10,7 @@ namespace ApiConsolePractice1.Helpers
 {
     internal class ResultDisplayHelper
     {
-        public static void DisplayResult(Result result)
+        public static void DisplayResult(Result result, bool pauseOnError = true)
         {
             if (result.IsSuccess)
             {
@@ -19,6 +19,11 @@ namespace ApiConsolePractice1.Helpers
             else
             {
                 AnsiConsole.MarkupLine($"[red]{result.ErrorMessage}[/]");
+                if (pauseOnError)
+                {
+                    AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
+                    Console.ReadKey();
+                }
             }
         }
 
@@ -29,7 +34,7 @@ namespace ApiConsolePractice1.Helpers
         /// <typeparam name="T"></typeparam>
         /// <param name="result"></param>
         /// <param name="onSuccess"></param>
-        public static void DisplayResult<T>(Result<T> result, Action<T> onSuccess)
+        public static void DisplayResult<T>(Result<T> result, Action<T> onSuccess, bool onPauseError = true)
         {
             if (result.IsSuccess)
             {
@@ -38,6 +43,37 @@ namespace ApiConsolePractice1.Helpers
             else
             {
                 AnsiConsole.MarkupLine($"[red]{result.ErrorMessage}[/]");
+                if (onPauseError)
+                {
+                    AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        public static void DisplayErrorOnly<T>(Result<T> result, bool pauseOnError = true)
+        {
+            if (!result.IsSuccess)
+            {
+                AnsiConsole.MarkupLine($"[red]{result.ErrorMessage}[/]");
+                if (pauseOnError)
+                {
+                    AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
+                    Console.ReadKey();
+                }
+            }
+        }
+        
+        public static void DisplayErrorOnly(Result result, bool pauseOnError = true)
+        {
+            if (!result.IsSuccess)
+            {
+                AnsiConsole.MarkupLine($"[red]{result.ErrorMessage}[/]");
+                if (pauseOnError)
+                {
+                    AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
+                    Console.ReadKey();
+                }
             }
         }
     }

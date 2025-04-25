@@ -276,7 +276,7 @@ namespace ApiConsolePractice1.Services
 
                 if (!responseResult.IsSuccess)
                 {
-                    return Result.Failure($"Failed to update bio: {responseResult.ErrorMessage}");
+                    return Result.Failure($"Failed to update: {responseResult.ErrorMessage}");
                 }
                 return Result.Success();
             }

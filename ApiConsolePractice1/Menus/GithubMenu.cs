@@ -74,8 +74,6 @@ namespace ApiConsolePractice1.Menus
             // If error, let user go back when he's ready.
             if (!result.IsSuccess)
             {
-                AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
-                Console.ReadKey();
                 return;
             }
 
@@ -106,8 +104,6 @@ namespace ApiConsolePractice1.Menus
         {
             var result = await _githubApiService.UnstarRepositoryAsync(repo.Owner.Login, repo.Name);
             ResultDisplayHelper.DisplayResult(result);
-            AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
-            Console.ReadKey();
         }
 
         private async Task HandleGitHubUserRepos()
@@ -117,11 +113,10 @@ namespace ApiConsolePractice1.Menus
 
             // Gets username of via bearer token
             var authUserResult = await GetAuthenticatedUsername();
+
             if (!authUserResult.IsSuccess)
             {
-                AnsiConsole.MarkupLine($"[red]Error: {authUserResult.ErrorMessage}[/]");
-                AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
-                Console.ReadKey();
+                ResultDisplayHelper.DisplayErrorOnly(authUserResult);
                 return;
             }
 
@@ -131,9 +126,7 @@ namespace ApiConsolePractice1.Menus
 
             if (!result.IsSuccess)
             {
-                AnsiConsole.MarkupLine($"[red]Error: {result.ErrorMessage}[/]");
-                AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
-                Console.ReadKey();
+                ResultDisplayHelper.DisplayErrorOnly(result);
                 return;
             }
 
@@ -172,7 +165,7 @@ namespace ApiConsolePractice1.Menus
             }
 
             var result = await _githubApiService.UpdateUserProfile(updateRequest);
-            ResultDisplayHelper.DisplayResult(result);
+            ResultDisplayHelper.DisplayResult(result, false);
 
             AnsiConsole.MarkupLine("\nPress any key to return to the menu...");
             Console.ReadKey();

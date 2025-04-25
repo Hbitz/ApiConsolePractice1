@@ -42,14 +42,14 @@ namespace ApiConsolePractice1.Menus
                         var repoResult = await _githubApiService.GetGithubRepoInfo(username, repoName);
                         // Use ResultDisplayHelper to handle result of api call
                         // If successful, pass the data to a method that displays the information in an detailed and organized manner
-                        // If failed, show user the error message
-                        ResultDisplayHelper.DisplayResult(repoResult, GithubDisplayHelper.DisplaySingleRepositoryDetails);
+                        // If failed, show user the error message, but don't pause as it would create duplicated behavior due to the Console.ReadKey after this switch-case
+                        ResultDisplayHelper.DisplayResult(repoResult, GithubDisplayHelper.DisplaySingleRepositoryDetails, false);
                         break;
 
                     case "View Commits":
                         var commitsRepoName = PromptUser("Enter repository name:");
                         var commitsResult = await _githubApiService.GetRecentCommits(username, commitsRepoName);
-                        ResultDisplayHelper.DisplayResult(commitsResult, GithubDisplayHelper.DisplayCommitsList);
+                        ResultDisplayHelper.DisplayResult(commitsResult, GithubDisplayHelper.DisplayCommitsList, false);
 
                         break;
 
