@@ -123,13 +123,15 @@ namespace ApiConsolePractice1.Menus
             var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
             var result = await GetUserRepositories(username, isSelf);
 
+            // If we have an error we only need to display the error here.
+            // If success we are passing the repo to GithubRepoMenu for further actions.
             if (!result.IsSuccess)
             {
                 ResultDisplayHelper.DisplayErrorOnly(result);
                 return;
             }
 
-            // Display the next options based 
+            // Let GithubRepoMenu handle further actions with repository
             await _githubRepoMenu.ShowMenu(username, result.Data);
         }
 

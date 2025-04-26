@@ -75,7 +75,6 @@ namespace ApiConsolePractice1.Services
         }
 
         // Fetch repositories based on username or authenticated user
-        // TODO - check validation error messages flow
         public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username= "", bool isAuthenticatedUser = false)
         {
             string apiUrl = isAuthenticatedUser
@@ -85,16 +84,6 @@ namespace ApiConsolePractice1.Services
             // Get all repos
             var result = await FetchAllRepositories(apiUrl);
 
-            if (!result.IsSuccess)
-            {
-                if (!isAuthenticatedUser)
-                {
-                    AnsiConsole.MarkupLine($"[yellow]No repositories found for user \"{username}\".[/]");
-                }
-                return result;
-            }
-
-            GithubDisplayHelper.DisplayRepositoryList(result.Data);
             return result;
         }
 
