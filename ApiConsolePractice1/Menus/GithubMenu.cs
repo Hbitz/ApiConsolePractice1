@@ -111,7 +111,7 @@ namespace ApiConsolePractice1.Menus
             var username = PromptUser("Enter GitHub username:");
 
             // Gets username of user via bearer token
-            var authUserResult = await GetAuthenticatedUsername();
+            var authUserResult = await _githubApiService.GetAuthenticatedUsername();
 
             if (!authUserResult.IsSuccess)
             {
@@ -121,7 +121,7 @@ namespace ApiConsolePractice1.Menus
 
             // Compare usernames to determine endpoint
             var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
-            var result = await GetUserRepositories(username, isSelf);
+            var result = await _githubApiService.GetUserRepositories(username, isSelf);
 
             // If we have an error we only need to display the error here.
             // If success we are passing the repo to GithubRepoMenu for further actions.
@@ -135,16 +135,6 @@ namespace ApiConsolePractice1.Menus
             await _githubRepoMenu.ShowMenu(username, result.Data);
         }
 
-        // Todo - Worth extracing a method just for the api call?
-        private async Task<Result<List<GithubRepository>>> GetUserRepositories(string username, bool isSelf)
-        {
-            return await _githubApiService.GetUserRepositories(username, isSelf);
-        }
-
-        private async Task<Result<string>> GetAuthenticatedUsername()
-        {
-            return await _githubApiService.GetAuthenticatedUsername();
-        }
 
         private async Task UpdateUserProfileAsync()
         {
