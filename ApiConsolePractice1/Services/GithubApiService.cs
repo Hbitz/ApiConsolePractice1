@@ -71,7 +71,7 @@ namespace ApiConsolePractice1.Services
             {
                 return Result<List<GithubRepository>>.Failure("No repositories found or failed to parse response.");
             }
-                        return Result<List<GithubRepository>>.Success(repos);
+            return Result<List<GithubRepository>>.Success(repos);
         }
 
         // Fetch repositories based on username or authenticated user
@@ -179,7 +179,7 @@ namespace ApiConsolePractice1.Services
                 var json = await response.Content.ReadAsStringAsync();
                 var starredRepos = JsonSerializer.Deserialize<List<GithubRepository>>(json);
 
-                if (starredRepos == null || starredRepos.Count == 0) // Todo "Any vs Count?"
+                if (starredRepos == null || starredRepos.Count == 0)
                 {
                     return Result<List<GithubRepository>>.Failure("No starred repositories.");
                 }
