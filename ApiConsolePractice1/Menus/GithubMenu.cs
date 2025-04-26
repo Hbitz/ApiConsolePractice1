@@ -171,13 +171,12 @@ namespace ApiConsolePractice1.Menus
             Console.ReadKey();
         }
 
-        // TODO - why bool? Convert to void helper method?
-        private bool DisplayGithubUserProfileInformation(Result<GithubUserProfile> profileResult)
+        private void DisplayGithubUserProfileInformation(Result<GithubUserProfile> profileResult)
         {
             if (!profileResult.IsSuccess)
             {
                 AnsiConsole.MarkupLine($"[red]{profileResult.ErrorMessage}[/]");
-                return false;
+                return;
             }
 
             var profile = profileResult.Data;
@@ -188,8 +187,6 @@ namespace ApiConsolePractice1.Menus
             AnsiConsole.MarkupLine($"[green]Blog:[/] {profile.Blog ?? "N/A"}");
             AnsiConsole.MarkupLine($"[green]Bio:[/] {profile.Bio ?? "N/A"}");
             AnsiConsole.MarkupLine("");
-
-            return true;
         }
 
         // Validation and specified requirements are handled in Helpers/GithubUserProfileValidator.cs
