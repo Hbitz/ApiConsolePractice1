@@ -25,22 +25,22 @@ namespace ApiConsolePractice1.Services
             }
         }
 
-        protected async Task<Result<HttpResponseMessage>> GetApiResponse(string apiUrl)
+        protected async Task<Result<HttpResponseMessage>> GetApiResponseAsync(string apiUrl)
         {
             return await HttpClientHelper.SendRequestAsync(_httpClient, apiUrl);
         }
 
-        protected async Task<Result<HttpResponseMessage>> SendPutRequest(string apiUrl)
+        protected async Task<Result<HttpResponseMessage>> SendPutRequestAsync(string apiUrl)
         {
             return await HttpClientHelper.SendPostRequestAsync(_httpClient, apiUrl);
         }
 
-        protected async Task<Result<HttpResponseMessage>> SendDeleteRequest(string apiUrl)
+        protected async Task<Result<HttpResponseMessage>> SendDeleteRequestAsync(string apiUrl)
         {
             return await HttpClientHelper.SendDeleteRequestAsync(_httpClient, apiUrl);
         }
 
-        protected async Task<Result<HttpResponseMessage>> SendPatchRequest(string apiUrl, Dictionary<string, string> payload)
+        protected async Task<Result<HttpResponseMessage>> SendPatchRequestAsync(string apiUrl, Dictionary<string, string> payload)
         {
             return await HttpClientHelper.SendPatchRequestAsync(_httpClient, apiUrl, payload);
         }

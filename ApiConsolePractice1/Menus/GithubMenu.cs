@@ -16,7 +16,7 @@ namespace ApiConsolePractice1.Menus
         private readonly GithubRepoMenu _githubRepoMenu;
         private readonly GithubApiService _githubApiService;
 
-        // TODO - Decouple menus from each other?
+
         public GithubMenu(GithubApiService githubApiService, GithubRepoMenu githubRepoMenu)
         {
             _githubApiService = githubApiService;
@@ -44,7 +44,7 @@ namespace ApiConsolePractice1.Menus
                 switch (choice)
                 {
                     case "Get Github User Repos":
-                        await HandleGitHubUserRepos();
+                        await HandleGitHubUserReposAsync();
                         break;
                     case "View My Starred Repositories":
                         await ViewStarredRepositoriesAsync();
@@ -105,13 +105,13 @@ namespace ApiConsolePractice1.Menus
             ResultDisplayHelper.DisplayResult(result);
         }
 
-        private async Task HandleGitHubUserRepos()
+        private async Task HandleGitHubUserReposAsync()
         {
             // Get username to search for
             var username = PromptUser("Enter GitHub username:");
 
             // Gets username of user via bearer token
-            var authUserResult = await _githubApiService.GetAuthenticatedUsername();
+            var authUserResult = await _githubApiService.GetAuthenticatedUsernameAsync();
 
             if (!authUserResult.IsSuccess)
             {
@@ -121,7 +121,7 @@ namespace ApiConsolePractice1.Menus
 
             // Compare usernames to determine endpoint
             var isSelf = string.Equals(username, authUserResult.Data, StringComparison.OrdinalIgnoreCase);
-            var result = await _githubApiService.GetUserRepositories(username, isSelf);
+            var result = await _githubApiService.GetUserRepositoriesAsync(username, isSelf);
 
             // If we have an error we only need to display the error here.
             // If success we are passing the repo to GithubRepoMenu for further actions.
@@ -132,7 +132,7 @@ namespace ApiConsolePractice1.Menus
             }
 
             // Let GithubRepoMenu handle further actions with repository
-            await _githubRepoMenu.ShowMenu(username, result.Data);
+            await _githubRepoMenu.ShowMenuAsync(username, result.Data);
         }
 
 
@@ -156,7 +156,7 @@ namespace ApiConsolePractice1.Menus
                 return;
             }
 
-            var result = await _githubApiService.UpdateUserProfile(updateRequest);
+            var result = await _githubApiService.UpdateUserProfileAsync(updateRequest);
             ResultDisplayHelper.DisplayResult(result, false); // add "false" to not pause on error and duplicate "press any key to return to menu" behavior.
 
             AnsiConsole.MarkupLine("\nPress any key to return to the menu...");

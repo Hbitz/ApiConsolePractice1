@@ -25,8 +25,7 @@ namespace ApiConsolePractice1.Services
         // * Review if this is handling too many GithubRelated task, not just the GithubApi.
         //   Possibly make services like GithubRepositoryService for all interactions regarding repository?
         // * Currently using Result<T> for success/failure states.
-        //   Maybe create exception class for more contextual information, e.g. error due to authentication failure, network issue or specific API response error.
-        //   Custom exceptions provides a more cosistent and readable error flow.
+        //   Maybe create exception class for more contextual information, or possibly extende Result class.
         public GithubApiService(IConfiguration config) : base(config)
         {
 
@@ -35,10 +34,10 @@ namespace ApiConsolePractice1.Services
 
         // *** GET-requests ***
 
-        public async Task<Result<string>> GetAuthenticatedUsername()
+        public async Task<Result<string>> GetAuthenticatedUsernameAsync()
         {
             string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
-            var responseResult = await GetApiResponse(apiUrl);
+            var responseResult = await GetApiResponseAsync(apiUrl);
 
             if (responseResult.IsSuccess)
             {
@@ -54,7 +53,7 @@ namespace ApiConsolePractice1.Services
         private async Task<Result<List<GithubRepository>>> FetchAllRepositories(string apiUrl, int perPage = 100)
         {
             var url = $"{apiUrl}?per_page={perPage}";
-            var responseResult = await GetApiResponse(url);
+            var responseResult = await GetApiResponseAsync(url);
 
             if (!responseResult.IsSuccess)
             {
@@ -75,30 +74,29 @@ namespace ApiConsolePractice1.Services
         }
 
         // Fetch repositories based on username or authenticated user
-        public async Task<Result<List<GithubRepository>>> GetUserRepositories(string username= "", bool isAuthenticatedUser = false)
+        public async Task<Result<List<GithubRepository>>> GetUserRepositoriesAsync(string username= "", bool isAuthenticatedUser = false)
         {
             string apiUrl = isAuthenticatedUser
                 ? GithubUrlBuilder.GetAuthenticatedUserRepositories()
                 : GithubUrlBuilder.GetPublicUserRepositories(username);
 
-            // Get all repos
             var result = await FetchAllRepositories(apiUrl);
 
             return result;
         }
 
-        public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositories()
+        public async Task<Result<List<GithubRepository>>> GetAuthenticatedUserRepositoriesAsync()
         {
-            return await GetUserRepositories(isAuthenticatedUser: true);
+            return await GetUserRepositoriesAsync(isAuthenticatedUser: true);
         }
 
         // Get a specific repository's details by owner and repository name
-        public async Task<Result<GithubRepository>> GetGithubRepoInfo(string owner, string repo)
+        public async Task<Result<GithubRepository>> GetGithubRepoInfoAsync(string owner, string repo)
         {
             try
             {
                 string apiUrl = GithubUrlBuilder.GetRepoDetails(owner, repo);
-                var responseResult = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponseAsync(apiUrl);
 
                 if (!responseResult.IsSuccess)
                 {
@@ -124,12 +122,12 @@ namespace ApiConsolePractice1.Services
         }
 
         // Get commits of a repository
-        public async Task<Result<List<CommitInfo>>> GetRecentCommits(string owner, string repo)
+        public async Task<Result<List<CommitInfo>>> GetRecentCommitsAsync(string owner, string repo)
         {
             try
             {
                 string apiUrl = GithubUrlBuilder.GetRepoCommits(owner, repo);
-                var responseResult = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponseAsync(apiUrl);
 
                 if (!responseResult.IsSuccess)
                 {
@@ -156,7 +154,7 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string apiUrl = GithubUrlBuilder.GetStarredRepositories();
-                var responseResult = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponseAsync(apiUrl);
 
 
                 if (!responseResult.IsSuccess)
@@ -187,7 +185,7 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string apiUrl = GithubUrlBuilder.GetAuthenticatedUserInfo();
-                var responseResult = await GetApiResponse(apiUrl);
+                var responseResult = await GetApiResponseAsync(apiUrl);
 
 
                 if (!responseResult.IsSuccess)
@@ -214,7 +212,7 @@ namespace ApiConsolePractice1.Services
             try
             {
                 string url = GithubUrlBuilder.UnstarRepository(owner, repo);
-                var responseResult = await SendDeleteRequest(url);
+                var responseResult = await SendDeleteRequestAsync(url);
 
 
                 if (!responseResult.IsSuccess)
@@ -235,7 +233,7 @@ namespace ApiConsolePractice1.Services
         public async Task<Result> StarRepositoryAsync(string owner, string repo)
         {
             string url = GithubUrlBuilder.StarRepository(owner, repo);
-            var responseResult = await SendPutRequest(url);
+            var responseResult = await SendPutRequestAsync(url);
 
             if (!responseResult.IsSuccess)
             {
@@ -248,12 +246,12 @@ namespace ApiConsolePractice1.Services
 
         // *** PATCH-requests ***
 
-        public async Task<Result> UpdateUserProfile(Dictionary<string, string> updateRequest)
+        public async Task<Result> UpdateUserProfileAsync(Dictionary<string, string> updateRequest)
         {
             try
             {
                 string url = GithubUrlBuilder.UpdateUserBio();
-                var responseResult = await SendPatchRequest(url, updateRequest);
+                var responseResult = await SendPatchRequestAsync(url, updateRequest);
 
                 if (!responseResult.IsSuccess)
                 {

@@ -21,7 +21,7 @@ namespace ApiConsolePractice1.Menus
         }
 
         // After user gets a list of repositories from an searched username, GithubMenu sends that list along so we can take action here(GithubRepoMenu).
-        public async Task ShowMenu(string username, List<GithubRepository> repos)
+        public async Task ShowMenuAsync(string username, List<GithubRepository> repos)
         {
             while (true)
             {
@@ -42,7 +42,7 @@ namespace ApiConsolePractice1.Menus
                 {
                     case "View Repository Details":
                         var repoName = PromptUser("Enter repository name:");
-                        var repoResult = await _githubApiService.GetGithubRepoInfo(username, repoName);
+                        var repoResult = await _githubApiService.GetGithubRepoInfoAsync(username, repoName);
                         // Use ResultDisplayHelper to handle result of api call
                         // If successful, pass the data to a method that displays the information in an detailed and organized manner
                         // If failed, show user the error message, but don't pause as it would create duplicated behavior due to the Console.ReadKey after this switch-case
@@ -51,7 +51,7 @@ namespace ApiConsolePractice1.Menus
 
                     case "View Commits":
                         var commitsRepoName = PromptUser("Enter repository name:");
-                        var commitsResult = await _githubApiService.GetRecentCommits(username, commitsRepoName);
+                        var commitsResult = await _githubApiService.GetRecentCommitsAsync(username, commitsRepoName);
                         ResultDisplayHelper.DisplayResult(commitsResult, GithubDisplayHelper.DisplayCommitsList, false);
 
                         break;
