@@ -59,7 +59,7 @@ namespace ApiConsolePractice1.Menus
                     case "Star a Repository":
                         var starRepoName = PromptUser("Enter a repository to star");
                         var starResult = await _githubApiService.StarRepositoryAsync(username, starRepoName);
-                        ResultDisplayHelper.DisplayResult(starResult);
+                        ResultDisplayHelper.DisplayResult(starResult, false);
                         break;
 
                     case "Back to Menu":
